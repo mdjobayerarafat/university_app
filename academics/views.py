@@ -20,7 +20,7 @@ from django.views import View
 from django.http import HttpResponse
 from django.template.loader import get_template
 from io import BytesIO
-from xhtml2pdf import pisa
+
 import datetime
 
 from . import forms
