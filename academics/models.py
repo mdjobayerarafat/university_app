@@ -226,6 +226,36 @@ class StudentSchedule(models.Model):
             )
             schedules.append(schedule)
         return schedules
+
+
+class ClassRoutine(models.Model):
+    DAYS = (
+        ('MON', 'Monday'),
+        ('TUE', 'Tuesday'),
+        ('WED', 'Wednesday'),
+        ('THU', 'Thursday'),
+        ('FRI', 'Friday'),
+        ('SAT', 'Saturday'),
+        ('SUN', 'Sunday'),
+    )
+
+    faculty = models.ForeignKey(Faculty, on_delete=models.CASCADE, related_name='routines')
+    course = models.ForeignKey(Course, on_delete=models.CASCADE, related_name='routines')
+    class_section = models.ForeignKey(ClassSection, on_delete=models.CASCADE, related_name='routines')
+    day = models.CharField(max_length=3, choices=DAYS)
+    start_time = models.TimeField()
+    end_time = models.TimeField()
+    room_number = models.CharField(max_length=20)
+
+    class Meta:
+        unique_together = [
+            ('class_section', 'day', 'start_time'),
+            ('faculty', 'day', 'start_time'),
+            ('room_number', 'day', 'start_time')
+        ]
+
+    def __str__(self):
+        return f"{self.class_section} - {self.course.code} - {self.get_day_display()}"
 # Add this to the Faculty model in academics/models.py
 def is_department_head(self):
     """Check if this faculty member is the head of their department"""

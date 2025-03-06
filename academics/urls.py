@@ -65,7 +65,9 @@ urlpatterns = [
 
     # Department Head Faculty List
     path('department/faculty/', DepartmentHeadFacultyListView.as_view(), name='department_faculty_list'),
-
+# academics/urls.py
+path('routine/<int:section_id>/', views.RoutineView.as_view(), name='routine_view'),
+path('routine/<int:section_id>/pdf/', views.GenerateRoutinePDF.as_view(), name='routine_pdf'),
     # Department Head Course List
     path('department/courses/', DepartmentHeadCourseListView.as_view(), name='department_course_list'),
     path('faculty/students/', FacultyStudentsView.as_view(), name='faculty_students'),

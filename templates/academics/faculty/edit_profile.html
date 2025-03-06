@@ -1,116 +1,542 @@
-<!-- templates/academics/faculty/edit_profile.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Edit Profile - UniConnect</title>
+    <style>
+        /* Include all the CSS styles from the original dashboard template here */
+        :root {
+            --primary: #2c3e50;
+            --secondary: #34495e;
+            --accent: #e67e22;
+            --light: #ecf0f1;
+            --dark: #2c3e50;
+            --success: #27ae60;
+            --danger: #e74c3c;
+            --warning: #f39c12;
+            --info: #3498db;
+            --muted: #95a5a6;
+        }
 
-                {% load static %}
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
 
-                {% block content %}
-                <div class="container py-4">
-                    <div class="row">
-                        <div class="col-md-8 offset-md-2">
-                            <h2 class="mb-4">Edit Profile</h2>
+        body {
+            background-color: #f5f7fa;
+            color: var(--dark);
+        }
 
-                            <form method="post" enctype="multipart/form-data">
-                                {% csrf_token %}
+        header {
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            color: white;
+            padding: 1rem;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
 
-                                <!-- Personal Information Card -->
-                                <div class="card mb-4">
-                                    <div class="card-body">
-                                        <h5 class="card-title mb-3">Personal Information</h5>
-                                        {{ form.as_p }}
-                                    </div>
-                                </div>
+        .brand {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
 
-                                <!-- Education Card -->
-                                <div class="card mb-4">
-                                    <div class="card-body">
-                                        <h5 class="card-title mb-3">Education</h5>
-                                        {{ education_formset.management_form }}
-                                        <div id="education-forms">
-                                            {% for education_form in education_formset %}
-                                                <div class="education-form mb-3 p-3 border rounded">
-                                                    {{ education_form.as_p }}
-                                                    {% if education_form.instance.pk %}
-                                                        <button type="button" class="btn btn-danger btn-sm remove-form">Remove</button>
-                                                    {% endif %}
-                                                </div>
-                                            {% endfor %}
-                                        </div>
-                                        <button type="button" class="btn btn-secondary btn-sm" id="add-education">
-                                            Add Education
-                                        </button>
-                                    </div>
-                                </div>
+        .logo {
+            font-size: 1.5rem;
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+        }
 
-                                <!-- Publications Card -->
-                                <div class="card mb-4">
-                                    <div class="card-body">
-                                        <h5 class="card-title mb-3">Publications</h5>
-                                        {{ publication_formset.management_form }}
-                                        <div id="publication-forms">
-                                            {% for publication_form in publication_formset %}
-                                                <div class="publication-form mb-3 p-3 border rounded">
-                                                    {{ publication_form.as_p }}
-                                                    {% if publication_form.instance.pk %}
-                                                        <button type="button" class="btn btn-danger btn-sm remove-form">Remove</button>
-                                                    {% endif %}
-                                                </div>
-                                            {% endfor %}
-                                        </div>
-                                        <button type="button" class="btn btn-secondary btn-sm" id="add-publication">
-                                            Add Publication
-                                        </button>
-                                    </div>
-                                </div>
+        .logo-icon {
+            margin-right: 0.5rem;
+            font-size: 1.8rem;
+        }
 
-                                <div class="mt-4">
-                                    <button type="submit" class="btn btn-primary">Save Changes</button>
-                                    <a href="{% url 'academics:faculty_detail' faculty.pk %}" class="btn btn-secondary">Cancel</a>
-                                </div>
-                            </form>
-                        </div>
+        .notification-bell {
+            position: relative;
+            cursor: pointer;
+        }
+
+        .notification-badge {
+            position: absolute;
+            top: -8px;
+            right: -8px;
+            background-color: var(--accent);
+            color: white;
+            border-radius: 50%;
+            width: 18px;
+            height: 18px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.7rem;
+        }
+
+        nav {
+            background-color: var(--primary);
+            padding: 0.8rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .nav-links {
+            display: flex;
+            list-style: none;
+        }
+
+        .nav-links li {
+            margin: 0 0.8rem;
+        }
+
+        .nav-links a {
+            color: white;
+            text-decoration: none;
+            font-weight: 500;
+            padding: 0.4rem 0.8rem;
+            border-radius: 4px;
+            transition: background-color 0.3s;
+            display: flex;
+            align-items: center;
+        }
+
+        .nav-links a i {
+            margin-right: 0.4rem;
+        }
+
+        .nav-links a:hover, .nav-links a.active {
+            background-color: rgba(255, 255, 255, 0.2);
+        }
+
+        .profile {
+            position: relative;
+        }
+
+        .profile:hover .profile-dropdown {
+            display: block;
+        }
+
+        .profile-dropdown {
+            display: none;
+            position: absolute;
+            top: 100%;
+            right: 0;
+            background-color: white;
+            box-shadow: 0 3px 10px rgba(0, 0, 0, 0.2);
+            border-radius: 4px;
+            min-width: 150px;
+            z-index: 100;
+        }
+
+        .profile-dropdown ul {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        .profile-dropdown li {
+            margin: 0;
+        }
+
+        .profile-dropdown a {
+            color: var(--primary);
+            padding: 0.8rem 1.2rem;
+            display: block;
+            text-decoration: none;
+            transition: background-color 0.2s;
+        }
+
+        .profile-dropdown a:hover {
+            background-color: #f5f5f5;
+            color: var(--accent);
+        }
+
+        .profile-img {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            background-color: var(--accent);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 0.8rem;
+            font-weight: bold;
+        }
+
+        main {
+            padding: 1.5rem;
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .breadcrumbs {
+            margin-bottom: 1.5rem;
+            display: flex;
+            align-items: center;
+            color: var(--muted);
+            font-size: 0.9rem;
+        }
+
+        .breadcrumbs a {
+            color: var(--primary);
+            text-decoration: none;
+        }
+
+        .breadcrumbs span {
+            margin: 0 0.5rem;
+        }
+
+        .page-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+        }
+
+        .page-title {
+            font-size: 1.8rem;
+            color: var(--primary);
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: 0.8rem;
+        }
+
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: 1fr 2fr;
+            gap: 1.5rem;
+        }
+
+        .card {
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+            border-bottom: 1px solid #eee;
+            padding-bottom: 0.8rem;
+        }
+
+        h2 {
+            color: var(--primary);
+            font-size: 1.3rem;
+            display: flex;
+            align-items: center;
+        }
+
+        h2 i {
+            margin-right: 0.5rem;
+            color: var(--accent);
+        }
+
+        .card-action {
+            color: var(--info);
+            cursor: pointer;
+            font-size: 0.9rem;
+        }
+
+        .btn {
+            padding: 0.5rem 1rem;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: 500;
+            transition: background-color 0.3s, transform 0.2s;
+            display: flex;
+            align-items: center;
+        }
+
+        .btn i {
+            margin-right: 0.4rem;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+        }
+
+        .btn-primary {
+            background-color: var(--primary);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background-color: #243442;
+        }
+
+        .btn-secondary {
+            background-color: var(--secondary);
+            color: white;
+        }
+
+        .btn-accent {
+            background-color: var(--accent);
+            color: white;
+        }
+
+        .btn-accent:hover {
+            background-color: #d35400;
+        }
+
+        .btn-success {
+            background-color: var(--success);
+            color: white;
+        }
+
+        .btn-danger {
+            background-color: var(--danger);
+            color: white;
+        }
+
+        @media (max-width: 992px) {
+            .dashboard-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .nav-links {
+                display: none;
+            }
+
+            .action-buttons {
+                flex-direction: column;
+            }
+        }
+
+        /* Additional styles for edit profile form */
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .card {
+            margin-bottom: 20px;
+        }
+
+        .card-title {
+            font-size: 1.2rem;
+            color: var(--primary);
+            margin-bottom: 1rem;
+        }
+
+        .form-group {
+            margin-bottom: 1rem;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 500;
+            color: var(--primary);
+        }
+
+        .form-group input,
+        .form-group textarea,
+        .form-group select {
+            width: 100%;
+            padding: 0.5rem;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 1rem;
+        }
+
+        .form-group textarea {
+            resize: vertical;
+            min-height: 100px;
+        }
+
+        .remove-form {
+            margin-top: 0.5rem;
+        }
+
+        .empty-form {
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="brand">
+            <div class="logo">
+                <span class="logo-icon">🏛️</span>
+                UniConnect
+            </div>
+            <div class="notification-bell">
+                <a href="{% url 'notifications:list' %}" style="text-decoration: none; color: inherit;">
+                    <span>🔔</span>
+                    {% if unread_notifications_count %}
+                        <div class="notification-badge">{{ unread_notifications_count }}</div>
+                    {% endif %}
+                </a>
+            </div>
+        </div>
+    </header>
+
+    <nav>
+        <ul class="nav-links">
+            <li><a href="{% url 'academics:faculty_dashboard' %}" class="active"><i>📊</i> Dashboard</a></li>
+            <li><a href="{% url 'transportation:route_list' %}"><i>🚌</i> Transport</a></li>
+            <li><a href="{% url 'academics:faculty_list' %}"><i>👨‍🏫</i> Faculty</a></li>
+            <li><a href="{% url 'academics:course_list' %}"><i>📚</i> Courses</a></li>
+            <li><a href="{% url 'cafeteria:cafeteria_list' %}">Cafeteria</a></li>
+            <li><a href="{% url 'events:event_list' %}">Events</a></li>
+            <li><a href="{% url 'admin:index' %}"><i>⚙️</i>Settings</a></li>
+        </ul>
+
+        <div class="profile">
+            <div class="profile-img">{{ faculty_member.user.first_name|first }}{{ faculty_member.user.last_name|first }}</div>
+            <span>{{ faculty_member.title }} • {{ faculty_member.department.name }}</span>
+            <div class="profile-dropdown">
+                <ul>
+                    <li><a href="{% url 'profile' %}">My Profile</a></li>
+                    <li><a href="{% url 'logout' %}">Logout</a></li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <main>
+        <div class="breadcrumbs">
+            <a href="{% url 'academics:faculty_dashboard' %}">Home</a> <span>›</span> Edit Profile
+        </div>
+
+        <div class="container">
+            <h2 class="page-title">Edit Profile</h2>
+
+            <form method="post" enctype="multipart/form-data">
+                {% csrf_token %}
+
+                <!-- Personal Information Card -->
+                <div class="card">
+                    <div class="card-header">
+                        <h2 class="card-title">Personal Information</h2>
+                    </div>
+                    <div class="card-body">
+                        {{ form.as_p }}
                     </div>
                 </div>
 
-                <script>
-                document.addEventListener('DOMContentLoaded', function() {
-                    // Handle Education formset
-                    const educationForms = document.getElementById('education-forms');
-                    const addEducationBtn = document.getElementById('add-education');
-                    const educationTotalForms = document.getElementById('id_education_set-TOTAL_FORMS');
+                <!-- Education Card -->
+                <div class="card">
+                    <div class="card-header">
+                        <h2 class="card-title">Education</h2>
+                    </div>
+                    <div class="card-body">
+                        {{ education_formset.management_form }}
+                        <div id="education-forms">
+                            {% for education_form in education_formset %}
+                                <div class="education-form mb-3 p-3 border rounded">
+                                    {{ education_form.as_p }}
+                                    {% if education_form.instance.pk %}
+                                        <button type="button" class="btn btn-danger btn-sm remove-form">Remove</button>
+                                    {% endif %}
+                                </div>
+                            {% endfor %}
+                        </div>
+                        <button type="button" class="btn btn-secondary btn-sm" id="add-education">
+                            Add Education
+                        </button>
+                    </div>
+                </div>
 
-                    if (addEducationBtn) {
-                        addEducationBtn.addEventListener('click', function() {
-                            const formIdx = educationForms.children.length;
-                            const emptyForm = document.getElementById('empty-education-form').innerHTML.replace(/__prefix__/g, formIdx);
-                            educationForms.insertAdjacentHTML('beforeend', emptyForm);
-                            educationTotalForms.value = formIdx + 1;
-                        });
-                    }
+                <!-- Publications Card -->
+                <div class="card">
+                    <div class="card-header">
+                        <h2 class="card-title">Publications</h2>
+                    </div>
+                    <div class="card-body">
+                        {{ publication_formset.management_form }}
+                        <div id="publication-forms">
+                            {% for publication_form in publication_formset %}
+                                <div class="publication-form mb-3 p-3 border rounded">
+                                    {{ publication_form.as_p }}
+                                    {% if publication_form.instance.pk %}
+                                        <button type="button" class="btn btn-danger btn-sm remove-form">Remove</button>
+                                    {% endif %}
+                                </div>
+                            {% endfor %}
+                        </div>
+                        <button type="button" class="btn btn-secondary btn-sm" id="add-publication">
+                            Add Publication
+                        </button>
+                    </div>
+                </div>
 
-                    // Handle Publication formset
-                    const publicationForms = document.getElementById('publication-forms');
-                    const addPublicationBtn = document.getElementById('add-publication');
-                    const publicationTotalForms = document.getElementById('id_publication_set-TOTAL_FORMS');
+                <div class="mt-4">
+                    <button type="submit" class="btn btn-primary">Save Changes</button>
+                    <a href="{% url 'academics:faculty_detail' faculty.pk %}" class="btn btn-secondary">Cancel</a>
+                </div>
+            </form>
+        </div>
+    </main>
 
-                    if (addPublicationBtn) {
-                        addPublicationBtn.addEventListener('click', function() {
-                            const formIdx = publicationForms.children.length;
-                            const emptyForm = document.getElementById('empty-publication-form').innerHTML.replace(/__prefix__/g, formIdx);
-                            publicationForms.insertAdjacentHTML('beforeend', emptyForm);
-                            publicationTotalForms.value = formIdx + 1;
-                        });
-                    }
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Handle Education formset
+            const educationForms = document.getElementById('education-forms');
+            const addEducationBtn = document.getElementById('add-education');
+            const educationTotalForms = document.getElementById('id_education_set-TOTAL_FORMS');
 
-                    // Handle remove buttons
-                    document.addEventListener('click', function(e) {
-                        if (e.target.classList.contains('remove-form')) {
-                            const formDiv = e.target.closest('.education-form, .publication-form');
-                            const deleteCheckbox = formDiv.querySelector('input[type=checkbox][name$=DELETE]');
-                            if (deleteCheckbox) {
-                                deleteCheckbox.checked = true;
-                                formDiv.style.display = 'none';
-                            }
-                        }
-                    });
+            if (addEducationBtn) {
+                addEducationBtn.addEventListener('click', function() {
+                    const formIdx = educationForms.children.length;
+                    const emptyForm = document.getElementById('empty-education-form').innerHTML.replace(/__prefix__/g, formIdx);
+                    educationForms.insertAdjacentHTML('beforeend', emptyForm);
+                    educationTotalForms.value = formIdx + 1;
                 });
-                </script>
-                {% endblock %}
+            }
+
+            // Handle Publication formset
+            const publicationForms = document.getElementById('publication-forms');
+            const addPublicationBtn = document.getElementById('add-publication');
+            const publicationTotalForms = document.getElementById('id_publication_set-TOTAL_FORMS');
+
+            if (addPublicationBtn) {
+                addPublicationBtn.addEventListener('click', function() {
+                    const formIdx = publicationForms.children.length;
+                    const emptyForm = document.getElementById('empty-publication-form').innerHTML.replace(/__prefix__/g, formIdx);
+                    publicationForms.insertAdjacentHTML('beforeend', emptyForm);
+                    publicationTotalForms.value = formIdx + 1;
+                });
+            }
+
+            // Handle remove buttons
+            document.addEventListener('click', function(e) {
+                if (e.target.classList.contains('remove-form')) {
+                    const formDiv = e.target.closest('.education-form, .publication-form');
+                    const deleteCheckbox = formDiv.querySelector('input[type=checkbox][name$=DELETE]');
+                    if (deleteCheckbox) {
+                        deleteCheckbox.checked = true;
+                        formDiv.style.display = 'none';
+                    }
+                }
+            });
+        });
+    </script>
+
+    <!-- Empty forms for dynamic addition -->
+    <div id="empty-education-form" class="empty-form">
+        {{ education_formset.empty_form.as_p }}
+    </div>
+    <div id="empty-publication-form" class="empty-form">
+        {{ publication_formset.empty_form.as_p }}
+    </div>
+</body>
+</html>

@@ -4,7 +4,7 @@ from .models import (
     Department, Faculty, OfficeHour, Course,
     ClassSection, ClassSchedule, Enrollment,
     Assignment, Exam, Education, Publication,
-    StudentSchedule, CourseAssignment
+    StudentSchedule, CourseAssignment, ClassRoutine
 )
 
 @admin.register(Department)
@@ -176,3 +176,18 @@ class StudentScheduleAdmin(admin.ModelAdmin):
     list_filter = ['semester', 'day', 'class_section__course']
     search_fields = ['student__username', 'student__email', 'class_section__course__code', 'class_section__course__name']
     raw_id_fields = ['student', 'class_section']
+
+@admin.register(ClassRoutine)
+class ClassRoutineAdmin(admin.ModelAdmin):
+    list_display = ['class_section', 'course', 'faculty', 'day', 'start_time', 'end_time', 'room_number']
+    list_filter = ['day', 'class_section__semester', 'faculty__department']
+    search_fields = ['class_section__course__code', 'faculty__user__last_name', 'room_number']
+    autocomplete_fields = ['faculty', 'course', 'class_section']
+    ordering = ['day', 'start_time']
+
+    def get_queryset(self, request):
+        return super().get_queryset(request).select_related(
+            'faculty__user',
+            'course',
+            'class_section'
+        )

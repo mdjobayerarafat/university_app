@@ -1,6 +1,10 @@
+from datetime import datetime
+from io import BytesIO
+
 from django.contrib.auth import get_user_model
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import render, get_object_or_404, redirect
+from django.template.loader import get_template
 from django.views.generic import ListView, DetailView, View
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib import messages
@@ -10,9 +14,15 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import viewsets
 from rest_framework.permissions import IsAuthenticated
-
+from django.shortcuts import render, get_object_or_404
+from django.views import View
+from django.http import HttpResponse
+from django.template.loader import get_template
+from io import BytesIO
+from xhtml2pdf import pisa
+import datetime
 from .forms import FacultyEditForm
-from .models import Department, Faculty, Course, ClassSection, Enrollment, Assignment, Exam, ClassSchedule
+from .models import Department, Faculty, Course, ClassSection, Enrollment, Assignment, Exam, ClassSchedule, ClassRoutine
 from .forms import (
     FacultyEditForm,
     EducationFormSet,
@@ -690,3 +700,76 @@ class FacultyStudentDetailView(LoginRequiredMixin, DetailView):
             'enrollments': enrollments
         })
         return context
+
+
+class RoutineView(LoginRequiredMixin, View):
+    template_name = 'academics/routine/view.html'
+
+    def get(self, request, section_id):
+        section = get_object_or_404(ClassSection, id=section_id)
+        routines = ClassRoutine.objects.filter(class_section=section).select_related(
+            'course', 'faculty'
+        )
+
+        organized_routines = {}
+        for day_code, day_name in ClassRoutine.DAYS:
+            organized_routines[day_code] = {
+                'name': day_name,
+                'slots': []
+            }
+
+        for routine in routines:
+            day = routine.day
+            organized_routines[day]['slots'].append(routine)
+
+        for day in organized_routines.values():
+            day['slots'].sort(key=lambda x: x.start_time)
+
+        return render(request, self.template_name, {
+            'section': section,
+            'department': section.course.department,
+            'organized_routines': organized_routines,
+            'days': dict(ClassRoutine.DAYS)
+        })
+
+
+class GenerateRoutinePDF(LoginRequiredMixin, View):
+    def get(self, request, section_id):
+        section = get_object_or_404(ClassSection, id=section_id)
+        routines = ClassRoutine.objects.filter(class_section=section).select_related(
+            'course', 'faculty'
+        )
+
+        organized_routines = {}
+        for day_code, day_name in ClassRoutine.DAYS:
+            organized_routines[day_code] = {
+                'name': day_name,
+                'slots': []
+            }
+
+        for routine in routines:
+            organized_routines[routine.day]['slots'].append(routine)
+
+        for day in organized_routines.values():
+            day['slots'].sort(key=lambda x: x.start_time)
+
+        template = get_template('academics/routine/pdf.html')
+        context = {
+            'section': section,
+            'department': section.course.department,
+            'organized_routines': organized_routines,
+            'days': dict(ClassRoutine.DAYS),
+            'current_date': datetime.datetime.now().strftime('%Y-%m-%d')
+        }
+
+        html = template.render(context)
+        result = BytesIO()
+        pdf = pisa.pisaDocument(BytesIO(html.encode("UTF-8")), result)
+
+        if not pdf.err:
+            response = HttpResponse(result.getvalue(), content_type='application/pdf')
+            filename = f"Class_Routine_{section.course.department.code}_{section.section_number}.pdf"
+            response['Content-Disposition'] = f'attachment; filename="{filename}"'
+            return response
+
+        return HttpResponse("Error generating PDF", status=400)

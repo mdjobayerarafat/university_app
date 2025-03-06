@@ -375,7 +375,7 @@
                 <ul>
                    <li><a href="{% url 'dashboard' %}">Home</a></li>
                    <li><a href="{% url 'profile' %}">Profile</a></li>
-                   <li><a href="{% url 'academics:my_schedule' %}">Schedule</a></li>
+                   <li><a href="{% url 'academics:department_list' %}">Departments</a></li>
                    <li><a href="{% url 'cafeteria:cafeteria_list' %}">Cafeteria</a></li>
 
                     <li><a href="{% url 'transportation:route_list' %}"><i>🚌</i> Transport</a></li>
@@ -424,14 +424,22 @@
                     <a href="#" class="feature-btn">Check Routes</a>
                 </div>
             </div>
-            <div class="feature-card">
-                <div class="feature-image">📚</div>
-                <div class="feature-content">
-                    <h3>Class Schedules</h3>
-                    <p>Keep track of your classes, assignments, and exams with automatic reminders and notifications.</p>
-                    <a href="{% url 'academics:my_schedule' %}" class="feature-btn">View Schedule</a>
-                </div>
-            </div>
+      <!-- Add this card to the feature-grid section -->
+     <div class="feature-card">
+              <div class="feature-image">📋</div>
+              <div class="feature-content">
+                  <h3>Class Routine</h3>
+                  <p>View and download your weekly class schedule in a convenient format.</p>
+                  {% if user.enrollments.exists %}
+                      {% with section=user.enrollments.first.class_section %}
+                          <a href="{% url 'academics:routine_view' section_id=section.id %}" class="feature-btn">View Routine</a>
+                          <a href="{% url 'academics:routine_pdf' section_id=section.id %}" class="feature-btn">Download PDF</a>
+                      {% endwith %}
+                  {% else %}
+                      <p class="text-muted">No class sections enrolled</p>
+                  {% endif %}
+              </div>
+          </div>
             <div class="feature-card">
                 <div class="feature-image">🎭</div>
                 <div class="feature-content">
