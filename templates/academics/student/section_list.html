@@ -1,0 +1,315 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Classes | Spring 2025 - UniHub</title>
+    <style>
+        /* Include all the CSS styles from the original dashboard template here */
+        :root {
+            --primary-color: #4A4E69; /* Dark Blue */
+            --secondary-color: #22223B; /* Very Dark Blue */
+            --accent-color: #9A8C98; /* Muted Purple */
+            --light-color: #F2E9E4; /* Light Beige */
+            --dark-color: #22223B; /* Very Dark Blue */
+            --success-color: #4CAF50; /* Green */
+            --warning-color: #FF9800; /* Orange */
+            --danger-color: #F44336; /* Red */
+            --gray-color: #6C757D; /* Gray */
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background-color: var(--light-color);
+            color: var(--dark-color);
+            line-height: 1.6;
+        }
+
+        header {
+            background-color: white;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .header-container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1rem 2rem;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-weight: bold;
+            font-size: 1.5rem;
+            color: var(--primary-color);
+        }
+
+        .logo-icon {
+            width: 40px;
+            height: 40px;
+            background-color: var(--primary-color);
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 1.2rem;
+        }
+
+        .notification-bell {
+            position: relative;
+            cursor: pointer;
+        }
+
+        .notification-badge {
+            position: absolute;
+            top: -8px;
+            right: -8px;
+            background-color: var(--accent-color);
+            color: white;
+            border-radius: 50%;
+            width: 18px;
+            height: 18px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.7rem;
+        }
+
+        nav ul {
+            display: flex;
+            list-style: none;
+            gap: 1.5rem;
+        }
+
+        nav a {
+            text-decoration: none;
+            color: var(--dark-color);
+            font-weight: 500;
+            transition: color 0.3s;
+        }
+
+        nav a:hover {
+            color: var(--primary-color);
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 2rem auto;
+            padding: 0 1rem;
+        }
+
+        .card {
+            background: white;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+            transition: transform 0.3s, box-shadow 0.3s;
+        }
+
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+        }
+
+        .card-header {
+            background-color: var(--light-color);
+            padding: 1rem;
+            border-bottom: 1px solid #e9ecef;
+        }
+
+        .card-body {
+            padding: 1.5rem;
+        }
+
+        .card-footer {
+            background-color: transparent;
+            padding: 1rem;
+            border-top: 1px solid #e9ecef;
+        }
+
+        .badge {
+            padding: 0.5rem 0.75rem;
+            border-radius: 20px;
+            font-size: 0.875rem;
+            font-weight: 500;
+        }
+
+        .badge.bg-primary {
+            background-color: var(--primary-color);
+            color: white;
+        }
+
+        .badge.bg-secondary {
+            background-color: var(--secondary-color);
+            color: white;
+        }
+
+        .btn {
+            padding: 0.5rem 1rem;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: 500;
+            transition: background-color 0.3s, transform 0.2s;
+            display: flex;
+            align-items: center;
+        }
+
+        .btn-outline-primary {
+            border: 1px solid var(--primary-color);
+            color: var(--primary-color);
+            background-color: transparent;
+        }
+
+        .btn-outline-primary:hover {
+            background-color: var(--primary-color);
+            color: white;
+        }
+
+        .alert {
+            padding: 1rem;
+            border-radius: 8px;
+            margin-bottom: 1.5rem;
+        }
+
+        .alert-info {
+            background-color: #e9f5ff;
+            color: #0a58ca;
+        }
+
+        .alert-heading {
+            font-size: 1.25rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .text-muted {
+            color: var(--gray-color);
+        }
+
+        .list-unstyled {
+            list-style: none;
+            padding: 0;
+        }
+
+        @media (max-width: 768px) {
+            .header-container {
+                flex-direction: column;
+                padding: 1rem;
+            }
+
+            nav ul {
+                margin-top: 1rem;
+                flex-wrap: wrap;
+                justify-content: center;
+            }
+
+            .container {
+                padding: 0 0.5rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="header-container">
+            <div class="logo">
+                <div class="logo-icon">UH</div>
+                <span>UniHub</span>
+            </div>
+
+            <nav>
+                <ul>
+                    <li><a href="{% url 'dashboard' %}">Home</a></li>
+                    <li><a href="{% url 'profile' %}">Profile</a></li>
+                    <li><a href="{% url 'academics:department_list' %}">Departments</a></li>
+                    <li><a href="{% url 'cafeteria:cafeteria_list' %}">Cafeteria</a></li>
+                    <li><a href="{% url 'transportation:route_list' %}"><i>🚌</i> Transport</a></li>
+                    <li><a href="{% url 'events:event_list' %}">Events</a></li>
+                    <li><a href="{% url 'navigation:building_list' %}">Campus Map</a></li>
+                </ul>
+            </nav>
+            <div class="notification-bell">
+                <a href="{% url 'notifications:list' %}" style="text-decoration: none; color: inherit;">
+                    <span>🔔</span>
+                    {% if unread_notifications_count %}
+                        <div class="notification-badge">{{ unread_notifications_count }}</div>
+                    {% endif %}
+                </a>
+            </div>
+        </div>
+    </header>
+
+    <main class="container">
+        <div class="row mb-4">
+
+        </div>
+
+
+
+        {% if sections %}
+            <div class="row row-cols-1 row-cols-md-2 g-4">
+                {% for section in sections %}
+                    <div class="col">
+                        <div class="card h-100">
+                            <div class="card-header bg-light d-flex justify-content-between align-items-center">
+                                <h5 class="mb-0">{{ section.course.code }}: {{ section.course.name }}</h5>
+                                <span class="badge bg-primary">{{ section.section_number }}</span>
+                            </div>
+                            <div class="card-body">
+                                <p><strong>Instructor:</strong> {{ section.instructor.user.get_full_name }}</p>
+                                <p><strong>Location:</strong> {{ section.location }}</p>
+
+                                {% if section.schedules.exists %}
+                                    <div class="mb-3">
+                                        <h6>Schedule:</h6>
+                                        <ul class="list-unstyled">
+                                            {% for schedule in section.schedules.all %}
+                                                <li>
+                                                    <span class="badge bg-secondary">{{ schedule.get_day_display }}</span>
+                                                    {{ schedule.start_time|time:"g:i A" }} - {{ schedule.end_time|time:"g:i A" }}
+                                                </li>
+                                            {% endfor %}
+                                        </ul>
+                                    </div>
+                                {% endif %}
+
+                                <p><small class="text-muted">{{ section.enrolled }}/{{ section.capacity }} students enrolled</small></p>
+                            </div>
+                            <div class="card-footer bg-transparent">
+                                <div class="d-grid">
+                                    <a href="{% url 'academics:student_class_detail' section.pk %}" class="btn btn-outline-primary">
+                                        View Details
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+        {% else %}
+            <div class="alert alert-info">
+                <h4 class="alert-heading">No Classes Found</h4>
+                <p>You are not currently enrolled in any classes for {{ current_semester }}.</p>
+                <hr>
+                <p class="mb-0">Please contact the registrar's office or your academic advisor for assistance with enrollment.</p>
+            </div>
+        {% endif %}
+    </main>
+
+
+</body>
+</html>

@@ -1,0 +1,441 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ section.course.code }}: {{ section.course.name }} - Class Detail - UniHub</title>
+    <style>
+        /* Include all the CSS styles from the original dashboard template here */
+        :root {
+            --primary-color: #4A4E69; /* Dark Blue */
+            --secondary-color: #22223B; /* Very Dark Blue */
+            --accent-color: #9A8C98; /* Muted Purple */
+            --light-color: #F2E9E4; /* Light Beige */
+            --dark-color: #22223B; /* Very Dark Blue */
+            --success-color: #4CAF50; /* Green */
+            --warning-color: #FF9800; /* Orange */
+            --danger-color: #F44336; /* Red */
+            --gray-color: #6C757D; /* Gray */
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background-color: var(--light-color);
+            color: var(--dark-color);
+            line-height: 1.6;
+        }
+
+        header {
+            background-color: white;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .header-container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1rem 2rem;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-weight: bold;
+            font-size: 1.5rem;
+            color: var(--primary-color);
+        }
+
+        .logo-icon {
+            width: 40px;
+            height: 40px;
+            background-color: var(--primary-color);
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 1.2rem;
+        }
+
+        .notification-bell {
+            position: relative;
+            cursor: pointer;
+        }
+
+        .notification-badge {
+            position: absolute;
+            top: -8px;
+            right: -8px;
+            background-color: var(--accent-color);
+            color: white;
+            border-radius: 50%;
+            width: 18px;
+            height: 18px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.7rem;
+        }
+
+        nav ul {
+            display: flex;
+            list-style: none;
+            gap: 1.5rem;
+        }
+
+        nav a {
+            text-decoration: none;
+            color: var(--dark-color);
+            font-weight: 500;
+            transition: color 0.3s;
+        }
+
+        nav a:hover {
+            color: var(--primary-color);
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 2rem auto;
+            padding: 0 1rem;
+        }
+
+        .card {
+            background: white;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+            transition: transform 0.3s, box-shadow 0.3s;
+        }
+
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+        }
+
+        .card-header {
+            background-color: var(--primary-color);
+            color: white;
+            padding: 1rem;
+            border-bottom: 1px solid #e9ecef;
+        }
+
+        .card-body {
+            padding: 1.5rem;
+        }
+
+        .badge {
+            padding: 0.5rem 0.75rem;
+            border-radius: 20px;
+            font-size: 0.875rem;
+            font-weight: 500;
+        }
+
+        .badge.bg-light {
+            background-color: var(--light-color);
+            color: var(--dark-color);
+        }
+
+        .badge.bg-success {
+            background-color: var(--success-color);
+            color: white;
+        }
+
+        .badge.bg-secondary {
+            background-color: var(--secondary-color);
+            color: white;
+        }
+
+        .alert {
+            padding: 1rem;
+            border-radius: 8px;
+            margin-bottom: 1.5rem;
+        }
+
+        .alert-danger {
+            background-color: #f8d7da;
+            color: #721c24;
+        }
+
+        .alert-warning {
+            background-color: #fff3cd;
+            color: #856404;
+        }
+
+        .alert-info {
+            background-color: #e9f5ff;
+            color: #0a58ca;
+        }
+
+        .tab-content {
+            padding: 1rem;
+        }
+
+        .nav-tabs {
+            border-bottom: 1px solid #e9ecef;
+        }
+
+        .nav-tabs .nav-link {
+            border: none;
+            color: var(--dark-color);
+            font-weight: 500;
+            padding: 0.75rem 1rem;
+            transition: background-color 0.3s, color 0.3s;
+        }
+
+        .nav-tabs .nav-link.active {
+            background-color: var(--primary-color);
+            color: white;
+            border-radius: 8px 8px 0 0;
+        }
+
+        .nav-tabs .nav-link:hover {
+            background-color: var(--light-color);
+            color: var(--primary-color);
+        }
+
+        .table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .table th, .table td {
+            padding: 0.75rem;
+            border-bottom: 1px solid #e9ecef;
+        }
+
+        .table th {
+            background-color: var(--light-color);
+            color: var(--dark-color);
+            font-weight: 600;
+        }
+
+        .table-striped tbody tr:nth-child(odd) {
+            background-color: #f8f9fa;
+        }
+
+        .list-group-item {
+            padding: 1rem;
+            border: 1px solid #e9ecef;
+            margin-bottom: 0.5rem;
+            border-radius: 8px;
+        }
+
+        .list-group-item-action:hover {
+            background-color: var(--light-color);
+        }
+
+        .rounded-circle {
+            border-radius: 50%;
+        }
+
+        @media (max-width: 768px) {
+            .header-container {
+                flex-direction: column;
+                padding: 1rem;
+            }
+
+            nav ul {
+                margin-top: 1rem;
+                flex-wrap: wrap;
+                justify-content: center;
+            }
+
+            .container {
+                padding: 0 0.5rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="header-container">
+            <div class="logo">
+                <div class="logo-icon">UH</div>
+                <span>UniHub</span>
+            </div>
+
+            <nav>
+                <ul>
+                    <li><a href="{% url 'dashboard' %}">Home</a></li>
+                    <li><a href="{% url 'profile' %}">Profile</a></li>
+                    <li><a href="{% url 'academics:department_list' %}">Departments</a></li>
+                    <li><a href="{% url 'cafeteria:cafeteria_list' %}">Cafeteria</a></li>
+                    <li><a href="{% url 'transportation:route_list' %}"><i>🚌</i> Transport</a></li>
+                    <li><a href="{% url 'events:event_list' %}">Events</a></li>
+                    <li><a href="{% url 'navigation:building_list' %}">Campus Map</a></li>
+                </ul>
+            </nav>
+            <div class="notification-bell">
+                <a href="{% url 'notifications:list' %}" style="text-decoration: none; color: inherit;">
+                    <span>🔔</span>
+                    {% if unread_notifications_count %}
+                        <div class="notification-badge">{{ unread_notifications_count }}</div>
+                    {% endif %}
+                </a>
+            </div>
+        </div>
+    </header>
+
+    <main class="container">
+        {% if not is_authorized %}
+            <div class="alert alert-danger">
+                You are not authorized to view this class section.
+            </div>
+        {% else %}
+            <div class="card mb-4">
+                <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
+                    <h3 class="mb-0">{{ section.course.code }}: {{ section.course.name }}</h3>
+                    <span class="badge bg-light text-dark">Section: {{ section.section_number }}</span>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <h4>Course Information</h4>
+                            <p><strong>Department:</strong> {{ section.course.department.name }}</p>
+                            <p><strong>Credit Hours:</strong> {{ section.course.credit_hours }}</p>
+                            <p><strong>Semester:</strong> {{ section.semester }}</p>
+                            <p><strong>Location:</strong> {{ section.location }}</p>
+                            <p><strong>Description:</strong> {{ section.course.description }}</p>
+                        </div>
+                        <div class="col-md-6">
+                            <h4>Instructor</h4>
+                            <div class="d-flex align-items-center mb-3">
+                                {% if instructor.profile_picture %}
+                                    <img src="{{ instructor.profile_picture.url }}" alt="{{ instructor.user.get_full_name }}" class="rounded-circle me-3" style="width: 64px; height: 64px; object-fit: cover;">
+                                {% else %}
+                                    <div class="rounded-circle bg-secondary text-white d-flex align-items-center justify-content-center me-3" style="width: 64px; height: 64px;">
+                                        <span style="font-size: 24px;">{{ instructor.user.first_name|first }}{{ instructor.user.last_name|first }}</span>
+                                    </div>
+                                {% endif %}
+                                <div>
+                                    <h5 class="mb-0">{{ instructor.user.get_full_name }}</h5>
+                                    <p class="text-muted">{{ instructor.title }}</p>
+                                </div>
+                            </div>
+                            <p><strong>Email:</strong> {{ instructor.user.email }}</p>
+                            <p><strong>Office:</strong> {{ instructor.office_location }}</p>
+                            {% if instructor.office_hours_text %}
+                                <p><strong>Office Hours:</strong> {{ instructor.office_hours_text }}</p>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Schedule Tab System -->
+            <div class="card mb-4">
+                <div class="card-header bg-light">
+
+                </div>
+                <div class="card-body">
+                    <div class="tab-content" id="classTabsContent">
+                        <!-- Schedule Tab -->
+
+
+                        <!-- Assignments Tab -->
+                        <div class="tab-pane fade" id="assignments" role="tabpanel" aria-labelledby="assignments-tab">
+                            <h4>Assignments</h4>
+                            {% if assignments %}
+                                <div class="list-group">
+                                    {% for assignment in assignments %}
+                                        <div class="list-group-item list-group-item-action">
+                                            <div class="d-flex w-100 justify-content-between">
+                                                <h5 class="mb-1">{{ assignment.title }}</h5>
+                                                <small>Due: {{ assignment.due_date|date:"M d, Y" }} at {{ assignment.due_date|time:"g:i A" }}</small>
+                                            </div>
+                                            <p class="mb-1">{{ assignment.description }}</p>
+                                            <small>Points: {{ assignment.points_possible }}</small>
+
+                                            {% if assignment.due_date > now %}
+                                                <span class="badge bg-success float-end">Upcoming</span>
+                                            {% else %}
+                                                <span class="badge bg-secondary float-end">Past Due</span>
+                                            {% endif %}
+                                        </div>
+                                    {% endfor %}
+                                </div>
+                            {% else %}
+                                <p class="alert alert-info">No assignments have been posted for this class yet.</p>
+                            {% endif %}
+                        </div>
+
+                        <!-- Exams Tab -->
+                        <div class="tab-pane fade" id="exams" role="tabpanel" aria-labelledby="exams-tab">
+                            <h4>Exams</h4>
+                            {% if exams %}
+                                <div class="table-responsive">
+                                    <table class="table table-striped">
+                                        <thead>
+                                            <tr>
+                                                <th>Title</th>
+                                                <th>Date</th>
+                                                <th>Location</th>
+                                                <th>Duration</th>
+                                                <th>Status</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            {% for exam in exams %}
+                                                <tr>
+                                                    <td>{{ exam.title }}</td>
+                                                    <td>{{ exam.date|date:"M d, Y" }} at {{ exam.date|time:"g:i A" }}</td>
+                                                    <td>{{ exam.location }}</td>
+                                                    <td>{{ exam.duration_minutes }} minutes</td>
+                                                    <td>
+                                                        {% if exam.date > now %}
+                                                            <span class="badge bg-success">Upcoming</span>
+                                                        {% else %}
+                                                            <span class="badge bg-secondary">Past</span>
+                                                        {% endif %}
+                                                    </td>
+                                                </tr>
+                                            {% endfor %}
+                                        </tbody>
+                                    </table>
+                                </div>
+                            {% else %}
+                                <p class="alert alert-info">No exams have been scheduled for this class yet.</p>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        {% endif %}
+    </main>
+
+
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Get all tab elements
+            const tabs = document.querySelectorAll('.tab');
+
+            // Add click event handlers to each tab
+            tabs.forEach(tab => {
+                tab.addEventListener('click', function() {
+                    // Remove active class from all tabs
+                    tabs.forEach(t => {
+                        t.classList.remove('active');
+                    });
+
+                    // Add active class to clicked tab
+                    this.classList.add('active');
+                });
+            });
+        });
+    </script>
+</body>
+</html>

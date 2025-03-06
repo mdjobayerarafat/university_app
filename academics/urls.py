@@ -96,4 +96,12 @@ path('routine/<int:section_id>/pdf/', views.GenerateRoutinePDF.as_view(), name='
 path('sections/<int:class_pk>/exams/create/', ExamCreateView.as_view(), name='exam_create'),
 path('exams/<int:pk>/update/', ExamUpdateView.as_view(), name='exam_update'),
 path('exams/<int:pk>/delete/', ExamDeleteView.as_view(), name='exam_delete'),
+    path('my-classes/',
+         views.StudentSectionListView.as_view(),
+         name='student_class_list'),
+
+    path('classes/<int:pk>/',
+         views.StudentClassDetailView.as_view(),
+         name='student_class_detail'),
+
 ]

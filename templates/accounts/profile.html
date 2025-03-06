@@ -207,13 +207,16 @@
             </div>
             <nav>
                 <ul>
-                        <li><a href="{% url 'dashboard' %}">Home</a></li>
+                         <ul>
+                   <li><a href="{% url 'dashboard' %}">Home</a></li>
                    <li><a href="{% url 'profile' %}">Profile</a></li>
-                   <li><a href="{% url 'academics:my_schedule' %}">Schedule</a></li>
+                   <li><a href="{% url 'academics:department_list' %}">Departments</a></li>
                    <li><a href="{% url 'cafeteria:cafeteria_list' %}">Cafeteria</a></li>
-                   <li><a href="#">Transport</a></li>
-                   <li><a href="#">Events</a></li>
-                   <li><a href="#">Campus Map</a></li>
+
+                    <li><a href="{% url 'transportation:route_list' %}">Transport</a></li>
+                 <li><a href="{% url 'events:event_list' %}">Events</a></li>
+                   <li><a href="{% url 'navigation:building_list' %}">Campus Map</a></li>
+                </ul>
 
                 </ul>
             </nav>

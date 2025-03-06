@@ -1000,3 +1000,59 @@ class ExamDeleteView(LoginRequiredMixin, DeleteView):
             messages.error(request, "You are not authorized to delete this exam.")
             return redirect('academics:faculty_dashboard')
         return super().dispatch(request, *args, **kwargs)
+
+
+class StudentSectionListView(LoginRequiredMixin, ListView):
+    model = ClassSection
+    template_name = 'academics/student/section_list.html'
+    context_object_name = 'sections'
+
+    def dispatch(self, request, *args, **kwargs):
+        # Instead of checking for student attribute, check if user is a student
+        if request.user.role != 'student':
+            messages.error(request, "Access denied. Students only.")
+            return redirect('academics:my_schedule')
+        return super().dispatch(request, *args, **kwargs)
+
+    def get_queryset(self):
+        current_semester = "Spring 2025"
+        return (ClassSection.objects
+               .filter(enrollments__student=self.request.user)
+               .select_related('course', 'instructor')
+               .prefetch_related('schedules')
+               .order_by('course__code'))
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        # No need to access student attribute
+        context['current_semester'] = "Spring 2025"
+        return context
+class StudentClassDetailView(LoginRequiredMixin, DetailView):
+    model = ClassSection
+    template_name = 'academics/student/class_detail.html'
+    context_object_name = 'section'
+
+    def dispatch(self, request, *args, **kwargs):
+        # Check user role instead of student attribute
+        if request.user.role != 'student':
+            messages.error(request, "Access denied. Students only.")
+            return redirect('academics:my_schedule')
+        return super().dispatch(request, *args, **kwargs)
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        section = self.object
+
+        # Check if student is enrolled in this section
+        if section.enrollments.filter(student=self.request.user).exists():
+            context['is_authorized'] = True
+            context['is_enrolled'] = True
+            context['schedules'] = section.schedules.all().order_by('day')
+            context['assignments'] = section.assignments.all().order_by('due_date')
+            context['exams'] = section.exams.all().order_by('date')
+            context['instructor'] = section.instructor
+        else:
+            context['is_authorized'] = False
+            messages.error(self.request, "You are not enrolled in this class section.")
+
+        return context

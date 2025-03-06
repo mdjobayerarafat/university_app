@@ -107,63 +107,50 @@
             color: var(--primary-color);
         }
 
-        .hero {
-            background: linear-gradient(135deg, var(--primary-color), var(--accent-color));
-            color: white;
-            padding: 4rem 2rem;
-            text-align: center;
-        }
+            .hero {
+        background: linear-gradient(135deg, var(--primary-color), var(--accent-color));
+        color: white;
+        padding: 4rem 2rem;
+        text-align: center;
+    }
 
-        .hero-container {
-            max-width: 1200px;
-            margin: 0 auto;
-        }
+    .hero-container {
+        max-width: 1200px;
+        margin: 0 auto;
+    }
 
-        .hero h1 {
-            font-size: 2.5rem;
-            margin-bottom: 1rem;
-        }
+    .hero h1 {
+        font-size: 2.5rem;
+        margin-bottom: 1rem;
+    }
 
-        .hero p {
-            font-size: 1.2rem;
-            max-width: 800px;
-            margin: 0 auto 2rem;
-        }
+    .hero p {
+        font-size: 1.2rem;
+        max-width: 800px;
+        margin: 0 auto 2rem;
+    }
 
-        .search-bar {
-            background: white;
-            max-width: 700px;
-            margin: 0 auto;
-            padding: 0.8rem 1.5rem;
-            border-radius: 50px;
-            display: flex;
-            align-items: center;
-            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
-        }
+    .nav-button {
+        display: inline-block;
+        background-color: var(--primary-color);
+        color: white;
+        padding: 0.8rem 2rem;
+        border-radius: 50px;
+        text-decoration: none;
+        font-weight: bold;
+        font-size: 1rem;
+        transition: background-color 0.3s, transform 0.2s;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+    }
 
-        .search-bar input {
-            flex: 1;
-            border: none;
-            padding: 0.5rem;
-            font-size: 1rem;
-            outline: none;
-        }
+    .nav-button:hover {
+        background-color: var(--secondary-color);
+        transform: translateY(-2px);
+    }
 
-        .search-bar button {
-            background-color: var(--primary-color);
-            color: white;
-            border: none;
-            padding: 0.5rem 1.5rem;
-            border-radius: 30px;
-            cursor: pointer;
-            font-weight: bold;
-            transition: background-color 0.3s;
-        }
-
-        .search-bar button:hover {
-            background-color: var(--secondary-color);
-        }
-
+    .nav-button:active {
+        transform: translateY(0);
+    }
         .features {
             padding: 4rem 2rem;
             max-width: 1200px;
@@ -378,7 +365,7 @@
                    <li><a href="{% url 'academics:department_list' %}">Departments</a></li>
                    <li><a href="{% url 'cafeteria:cafeteria_list' %}">Cafeteria</a></li>
 
-                    <li><a href="{% url 'transportation:route_list' %}"><i>🚌</i> Transport</a></li>
+                    <li><a href="{% url 'transportation:route_list' %}">Transport</a></li>
                  <li><a href="{% url 'events:event_list' %}">Events</a></li>
                    <li><a href="{% url 'navigation:building_list' %}">Campus Map</a></li>
                 </ul>
@@ -394,16 +381,15 @@
         </div>
     </header>
 
-    <section class="hero">
-        <div class="hero-container">
-            <h1>Your All-in-One University Companion</h1>
-            <p>Access class schedules, cafeteria menus, transportation updates, events, and campus navigation all in one place.</p>
-            <div class="search-bar">
-                <input type="text" placeholder="Search for classes, events, or locations...">
-                <button>Search</button>
-            </div>
-        </div>
-    </section>
+ <section class="hero">
+    <div class="hero-container">
+        <h1>Your All-in-One University Companion</h1>
+        <p>Access class schedules, cafeteria menus, transportation updates, events, and campus navigation all in one place.</p>
+        <a href="{% url 'academics:student_class_list' %}" class="nav-button">
+            <span>My Courses</span>
+        </a>
+    </div>
+</section>
 
     <section class="features">
         <h2>Simplify Your Campus Life</h2>
@@ -421,7 +407,7 @@
                 <div class="feature-content">
                     <h3>Bus Schedules</h3>
                     <p>Get real-time updates on university shuttle routes, track buses, and receive delay notifications.</p>
-                    <a href="#" class="feature-btn">Check Routes</a>
+                    <a href="{% url 'transportation:route_list' %}" class="feature-btn">Check Routes</a>
                 </div>
             </div>
       <!-- Add this card to the feature-grid section -->
@@ -495,19 +481,7 @@
         </div>
     </section>
 
-    <div class="notifications">
-        <div class="notification-header">
-            <strong>Class Reminder</strong>
-            <span>×</span>
-        </div>
-        <div class="notification-body">
-            Your Data Structures class starts in 30 minutes (Room 302, Building B).
-        </div>
-        <div class="notification-actions">
-            <button class="secondary">Dismiss</button>
-            <button class="primary">View Details</button>
-        </div>
-    </div>
+
 
     <footer>
         <p>© 2025 UniHub - Your All-in-One University Companion</p>
