@@ -431,6 +431,62 @@
             font-size: 0.8rem;
             color: var(--secondary);
         }
+
+        /* Modal styles */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            overflow: auto;
+            background-color: rgba(0,0,0,0.4);
+        }
+
+        .modal-content {
+            background-color: #fefefe;
+            margin: 10% auto;
+            padding: 20px;
+            border: 1px solid #888;
+            border-radius: 8px;
+            width: 50%;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        }
+
+        .close {
+            color: #aaa;
+            float: right;
+            font-size: 28px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        .close:hover,
+        .close:focus {
+            color: black;
+            text-decoration: none;
+        }
+
+        .form-group {
+            margin-bottom: 1rem;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 500;
+        }
+
+        .form-control {
+            display: block;
+            width: 100%;
+            padding: 0.5rem;
+            font-size: 1rem;
+            border: 1px solid #ced4da;
+            border-radius: 0.25rem;
+        }
     </style>
 </head>
 <body>
@@ -463,8 +519,8 @@
         </ul>
 
         <div class="profile">
-            <div class="profile-img">{{ faculty_member.user.first_name|first }}{{ faculty_member.user.last_name|first }}</div>
-            <span>{{ faculty_member.title }} • {{ faculty_member.department.name }}</span>
+            <div class="profile-img">{{ faculty.user.first_name|first }}{{ faculty.user.last_name|first }}</div>
+            <span>{{ faculty.title }} • {{ faculty.department.name }}</span>
             <div class="profile-dropdown">
                 <ul>
                     <li><a href="{% url 'profile' %}">My Profile</a></li>
@@ -554,6 +610,56 @@
                         </div>
                     {% else %}
                         <p class="text-muted">No assignments have been created yet.</p>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Exams Card -->
+            <div class="card mb-4">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h4>Exams</h4>
+                    {% if is_instructor %}
+                        <a href="{% url 'academics:exam_create' class_pk=section.pk %}"
+                           class="btn btn-primary">Add Exam</a>
+                    {% endif %}
+                </div>
+                <div class="card-body">
+                    {% if exams %}
+                        <div class="table-responsive">
+                            <table class="table">
+                                <thead>
+                                    <tr>
+                                        <th>Title</th>
+                                        <th>Date</th>
+                                        <th>Location</th>
+                                        <th>Duration</th>
+                                        {% if is_instructor %}
+                                            <th>Actions</th>
+                                        {% endif %}
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for exam in exams %}
+                                        <tr>
+                                            <td>{{ exam.title }}</td>
+                                            <td>{{ exam.date|date:"M d, Y H:i" }}</td>
+                                            <td>{{ exam.location }}</td>
+                                            <td>{{ exam.duration_minutes }} minutes</td>
+                                            {% if is_instructor %}
+                                                <td>
+                                                    <a href="{% url 'academics:exam_update' pk=exam.pk %}"
+                                                       class="btn btn-sm btn-outline-primary">Edit</a>
+                                                    <a href="{% url 'academics:exam_delete' pk=exam.pk %}"
+                                                       class="btn btn-sm btn-outline-danger">Delete</a>
+                                                </td>
+                                            {% endif %}
+                                        </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    {% else %}
+                        <p class="text-muted">No exams have been scheduled yet.</p>
                     {% endif %}
                 </div>
             </div>

@@ -268,3 +268,11 @@ class ExamFilterForm(forms.Form):
             self.fields['class_section'].queryset = ClassSection.objects.filter(
                 enrollments__student=user
             ).select_related('course')
+
+class ExamForm(forms.ModelForm):
+    class Meta:
+        model = Exam
+        fields = ['title', 'date', 'location', 'duration_minutes']
+        widgets = {
+            'date': forms.DateTimeInput(attrs={'type': 'datetime-local'}),
+        }

@@ -24,7 +24,7 @@ from xhtml2pdf import pisa
 import datetime
 
 from . import forms
-from .forms import FacultyEditForm, AssignmentForm
+from .forms import FacultyEditForm, AssignmentForm, ExamForm
 from .models import Department, Faculty, Course, ClassSection, Enrollment, Assignment, Exam, ClassSchedule, ClassRoutine
 from .forms import (
     FacultyEditForm,
@@ -850,24 +850,65 @@ class FacultyClassDetailView(LoginRequiredMixin, DetailView):
     template_name = 'academics/faculty/class_detail.html'
     context_object_name = 'section'
 
+    def dispatch(self, request, *args, **kwargs):
+        if not hasattr(request.user, 'faculty'):
+            messages.error(request, "Access denied. Faculty only.")
+            return redirect('home')
+        return super().dispatch(request, *args, **kwargs)
+
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        faculty = get_object_or_404(Faculty, user=self.request.user)
+        faculty = self.request.user.faculty
         section = self.object
 
-        # Check authorization
-        if section.instructor == faculty or (
-                faculty.is_department_head() and section.course.department == faculty.department):
+        # Check if user is authorized to view this section
+        if section.instructor == faculty:
             context['is_authorized'] = True
-            context['is_instructor'] = section.instructor == faculty
-            context['assignments'] = section.assignments.all().order_by('due_date')
+            context['is_instructor'] = True
             context['schedules'] = section.schedules.all().order_by('day')
-            context['enrolled_students'] = section.enrollments.select_related('student')
+            context['enrolled_students'] = section.enrollments.select_related('student').order_by('student__last_name')
+            context['assignments'] = section.assignments.all().order_by('due_date')
+            context['exams'] = section.exams.all().order_by('date')
+            context['faculty'] = faculty
+
+            # Add exam form
+            if not self.request.GET.get('edit_exam'):
+                context['exam_form'] = ExamForm(initial={'class_section': section})
+            else:
+                exam = get_object_or_404(Exam, pk=self.request.GET.get('edit_exam'))
+                context['exam_form'] = ExamForm(instance=exam)
+                context['edit_exam'] = exam
         else:
             context['is_authorized'] = False
+            messages.error(self.request, "You are not authorized to view this class section.")
 
-        context['faculty'] = faculty
         return context
+
+    def post(self, request, *args, **kwargs):
+        section = self.get_object()
+        faculty = self.request.user.faculty
+
+        if section.instructor != faculty:
+            messages.error(request, "You are not authorized to manage exams for this class.")
+            return redirect('academics:faculty_dashboard')
+
+        # Handle exam creation/update
+        exam_id = request.POST.get('exam_id')
+        if exam_id:
+            exam = get_object_or_404(Exam, pk=exam_id)
+            form = ExamForm(request.POST, instance=exam)
+        else:
+            form = ExamForm(request.POST)
+
+        if form.is_valid():
+            exam = form.save(commit=False)
+            exam.class_section = section
+            exam.save()
+            messages.success(request, 'Exam successfully saved.')
+        else:
+            messages.error(request, 'Error saving exam. Please check the form.')
+
+        return redirect('academics:faculty_class_detail', pk=section.pk)
 
 # academics/views.py
 class FacultySectionListView(LoginRequiredMixin, ListView):
@@ -895,3 +936,67 @@ class FacultySectionListView(LoginRequiredMixin, ListView):
         context['current_semester'] = "Spring 2025"
         context['show_debug'] = True  # For debugging purposes
         return context
+
+
+class ExamCreateView(LoginRequiredMixin, CreateView):
+    model = Exam
+    form_class = ExamForm
+    template_name = 'academics/faculty/exam_form.html'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['class_section'] = get_object_or_404(ClassSection, pk=self.kwargs['class_pk'])
+        return context
+
+    def form_valid(self, form):
+        class_section = get_object_or_404(ClassSection, pk=self.kwargs['class_pk'])
+        faculty = get_object_or_404(Faculty, user=self.request.user)
+
+        if class_section.instructor != faculty:
+            messages.error(self.request, "You are not authorized to add exams to this class.")
+            return redirect('academics:faculty_dashboard')
+
+        form.instance.class_section = class_section
+        messages.success(self.request, "Exam created successfully.")
+        return super().form_valid(form)
+
+    def get_success_url(self):
+        return reverse_lazy('academics:faculty_class_detail', kwargs={'pk': self.kwargs['class_pk']})
+
+class ExamUpdateView(LoginRequiredMixin, UpdateView):
+    model = Exam
+    form_class = ExamForm
+    template_name = 'academics/faculty/exam_form.html'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['class_section'] = self.object.class_section
+        return context
+
+    def get_success_url(self):
+        return reverse_lazy('academics:faculty_class_detail', kwargs={'pk': self.object.class_section.id})
+
+    def dispatch(self, request, *args, **kwargs):
+        exam = self.get_object()
+        faculty = get_object_or_404(Faculty, user=request.user)
+
+        if exam.class_section.instructor != faculty:
+            messages.error(request, "You are not authorized to edit this exam.")
+            return redirect('academics:faculty_dashboard')
+        return super().dispatch(request, *args, **kwargs)
+
+class ExamDeleteView(LoginRequiredMixin, DeleteView):
+    model = Exam
+    template_name = 'academics/faculty/exam_confirm_delete.html'
+
+    def get_success_url(self):
+        return reverse_lazy('academics:faculty_class_detail', kwargs={'pk': self.object.class_section.id})
+
+    def dispatch(self, request, *args, **kwargs):
+        exam = self.get_object()
+        faculty = get_object_or_404(Faculty, user=request.user)
+
+        if exam.class_section.instructor != faculty:
+            messages.error(request, "You are not authorized to delete this exam.")
+            return redirect('academics:faculty_dashboard')
+        return super().dispatch(request, *args, **kwargs)

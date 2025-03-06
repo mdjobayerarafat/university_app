@@ -16,7 +16,8 @@ from .views import (
     AssignmentListView,
     ExamListView, FacultyDashboardView, FacultyClassListView, FacultyClassDetailView, FacultyClassScheduleEditView,
     DepartmentHeadFacultyListView, DepartmentHeadCourseListView, FacultyStudentsView, FacultyStudentDetailView,
-    AssignmentCreateView, AssignmentUpdateView, AssignmentDeleteView, FacultySectionListView,
+    AssignmentCreateView, AssignmentUpdateView, AssignmentDeleteView, FacultySectionListView, ExamCreateView,
+    ExamUpdateView, ExamDeleteView,
 )
 
 app_name = 'academics'  # Namespace for the app
@@ -91,4 +92,8 @@ path('routine/<int:section_id>/pdf/', views.GenerateRoutinePDF.as_view(), name='
     path('faculty/sections/',
          FacultySectionListView.as_view(),
          name='faculty_section_list'),
+# academics/urls.py
+path('sections/<int:class_pk>/exams/create/', ExamCreateView.as_view(), name='exam_create'),
+path('exams/<int:pk>/update/', ExamUpdateView.as_view(), name='exam_update'),
+path('exams/<int:pk>/delete/', ExamDeleteView.as_view(), name='exam_delete'),
 ]
