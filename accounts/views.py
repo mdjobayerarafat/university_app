@@ -7,7 +7,7 @@ from django.utils import timezone
 from django.shortcuts import render, redirect
 from django.contrib.auth import authenticate, login, logout, get_user_model
 from django.contrib.auth.mixins import LoginRequiredMixin
-from django.views.generic import View, UpdateView, DetailView, FormView
+from django.views.generic import View, UpdateView, DetailView, FormView, ListView
 from django.urls import reverse_lazy
 from django.contrib import messages
 
@@ -369,3 +369,4 @@ def debug_auth(request):
         return render(request, 'accounts/debug_auth.html', context)
 
     return render(request, 'accounts/debug_auth.html')
+

@@ -5,7 +5,8 @@ from django.contrib.auth import get_user_model
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import render, get_object_or_404, redirect
 from django.template.loader import get_template
-from django.views.generic import ListView, DetailView, View
+from django.urls import reverse_lazy
+from django.views.generic import ListView, DetailView, View, UpdateView, DeleteView, CreateView
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib import messages
 from django.utils import timezone
@@ -21,7 +22,9 @@ from django.template.loader import get_template
 from io import BytesIO
 from xhtml2pdf import pisa
 import datetime
-from .forms import FacultyEditForm
+
+from . import forms
+from .forms import FacultyEditForm, AssignmentForm
 from .models import Department, Faculty, Course, ClassSection, Enrollment, Assignment, Exam, ClassSchedule, ClassRoutine
 from .forms import (
     FacultyEditForm,
@@ -354,6 +357,73 @@ class AssignmentListView(LoginRequiredMixin, ListView):
         return queryset.order_by('due_date')
 
 
+
+class AssignmentCreateView(LoginRequiredMixin, CreateView):
+    model = Assignment
+    form_class = AssignmentForm
+    template_name = 'academics/faculty/assignment_form.html'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['class_section'] = get_object_or_404(ClassSection, pk=self.kwargs['class_pk'])
+        return context
+
+    def form_valid(self, form):
+        class_section = get_object_or_404(ClassSection, pk=self.kwargs['class_pk'])
+        faculty = get_object_or_404(Faculty, user=self.request.user)
+
+        if class_section.instructor != faculty:
+            messages.error(self.request, "You are not authorized to add assignments to this class.")
+            return redirect('academics:faculty_dashboard')
+
+        form.instance.class_section = class_section
+        messages.success(self.request, "Assignment created successfully.")
+        return super().form_valid(form)
+
+    def get_success_url(self):
+        return reverse_lazy('academics:faculty_class_detail',
+                          kwargs={'pk': self.kwargs['class_pk']})
+
+class AssignmentUpdateView(LoginRequiredMixin, UpdateView):
+    model = Assignment
+    form_class = AssignmentForm
+    template_name = 'academics/faculty/assignment_form.html'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['class_section'] = self.object.class_section
+        return context
+
+    def get_success_url(self):
+        return reverse_lazy('academics:faculty_class_detail',
+                          kwargs={'pk': self.object.class_section.id})
+
+    def dispatch(self, request, *args, **kwargs):
+        assignment = self.get_object()
+        faculty = get_object_or_404(Faculty, user=request.user)
+
+        if assignment.class_section.instructor != faculty:
+            messages.error(request, "You are not authorized to edit this assignment.")
+            return redirect('academics:faculty_dashboard')
+        return super().dispatch(request, *args, **kwargs)
+
+
+class AssignmentDeleteView(LoginRequiredMixin, DeleteView):
+    model = Assignment
+    template_name = 'academics/faculty/assignment_confirm_delete.html'
+
+    def get_success_url(self):
+        return reverse_lazy('academics:faculty_class_detail',
+                            kwargs={'pk': self.object.class_section.id})
+
+    def dispatch(self, request, *args, **kwargs):
+        assignment = self.get_object()
+        faculty = get_object_or_404(Faculty, user=request.user)
+
+        if assignment.class_section.instructor != faculty:
+            messages.error(request, "You are not authorized to delete this assignment.")
+            return redirect('academics:faculty_dashboard')
+        return super().dispatch(request, *args, **kwargs)
 class ExamListView(LoginRequiredMixin, ListView):
     template_name = 'academics/exams.html'
     context_object_name = 'exams'
@@ -773,3 +843,55 @@ class GenerateRoutinePDF(LoginRequiredMixin, View):
             return response
 
         return HttpResponse("Error generating PDF", status=400)
+
+
+class FacultyClassDetailView(LoginRequiredMixin, DetailView):
+    model = ClassSection
+    template_name = 'academics/faculty/class_detail.html'
+    context_object_name = 'section'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        faculty = get_object_or_404(Faculty, user=self.request.user)
+        section = self.object
+
+        # Check authorization
+        if section.instructor == faculty or (
+                faculty.is_department_head() and section.course.department == faculty.department):
+            context['is_authorized'] = True
+            context['is_instructor'] = section.instructor == faculty
+            context['assignments'] = section.assignments.all().order_by('due_date')
+            context['schedules'] = section.schedules.all().order_by('day')
+            context['enrolled_students'] = section.enrollments.select_related('student')
+        else:
+            context['is_authorized'] = False
+
+        context['faculty'] = faculty
+        return context
+
+# academics/views.py
+class FacultySectionListView(LoginRequiredMixin, ListView):
+    model = ClassSection
+    template_name = 'academics/faculty/section_list.html'
+    context_object_name = 'sections'
+
+    def dispatch(self, request, *args, **kwargs):
+        if not hasattr(request.user, 'faculty'):
+            messages.error(request, "Access denied. Faculty only.")
+            return redirect('home')
+        return super().dispatch(request, *args, **kwargs)
+
+    def get_queryset(self):
+        current_semester = "Spring 2025"
+        return (ClassSection.objects
+               .filter(instructor=self.request.user.faculty)
+               .select_related('course', 'instructor')
+               .prefetch_related('schedules', 'enrollments', 'enrollments__student')
+               .order_by('course__code'))
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['faculty'] = self.request.user.faculty
+        context['current_semester'] = "Spring 2025"
+        context['show_debug'] = True  # For debugging purposes
+        return context

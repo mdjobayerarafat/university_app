@@ -179,12 +179,11 @@ class ClassScheduleFormSet(forms.BaseInlineFormSet):
 class AssignmentForm(forms.ModelForm):
     class Meta:
         model = Assignment
-        fields = ['class_section', 'title', 'description', 'due_date', 'points_possible']
+        fields = ['title', 'description', 'due_date', 'points_possible']
         widgets = {
-            'description': forms.Textarea(attrs={'rows': 4}),
             'due_date': forms.DateTimeInput(attrs={'type': 'datetime-local'}),
+            'description': forms.Textarea(attrs={'rows': 4}),
         }
-
 
 class ExamForm(forms.ModelForm):
     class Meta:

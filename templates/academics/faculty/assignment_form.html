@@ -1,0 +1,33 @@
+{# templates/academics/faculty/assignment_form.html #}
+
+
+{% block content %}
+<div class="container">
+    <div class="card">
+        <div class="card-header">
+            <h2>{% if form.instance.pk %}Edit{% else %}Create{% endif %} Assignment</h2>
+        </div>
+        <div class="card-body">
+            <form method="post">
+                {% csrf_token %}
+                {% for field in form %}
+                    <div class="form-group">
+                        <label for="{{ field.id_for_label }}">{{ field.label }}</label>
+                        {{ field }}
+                        {% if field.errors %}
+                            <div class="alert alert-danger">
+                                {{ field.errors }}
+                            </div>
+                        {% endif %}
+                    </div>
+                {% endfor %}
+                <button type="submit" class="btn btn-primary">
+                    {% if form.instance.pk %}Update{% else %}Create{% endif %}
+                </button>
+                <a href="{% url 'academics:faculty_class_detail' class_section.pk %}"
+                   class="btn btn-secondary">Cancel</a>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

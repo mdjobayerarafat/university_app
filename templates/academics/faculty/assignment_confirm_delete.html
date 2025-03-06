@@ -1,0 +1,21 @@
+{# templates/academics/faculty/assignment_confirm_delete.html #}
+
+
+{% block content %}
+<div class="container">
+    <div class="card">
+        <div class="card-header">
+            <h2>Delete Assignment</h2>
+        </div>
+        <div class="card-body">
+            <p>Are you sure you want to delete "{{ object.title }}"?</p>
+            <form method="post">
+                {% csrf_token %}
+                <button type="submit" class="btn btn-danger">Delete</button>
+                <a href="{% url 'academics:faculty_class_detail' object.class_section.pk %}"
+                   class="btn btn-secondary">Cancel</a>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

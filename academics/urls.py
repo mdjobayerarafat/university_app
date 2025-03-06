@@ -16,6 +16,7 @@ from .views import (
     AssignmentListView,
     ExamListView, FacultyDashboardView, FacultyClassListView, FacultyClassDetailView, FacultyClassScheduleEditView,
     DepartmentHeadFacultyListView, DepartmentHeadCourseListView, FacultyStudentsView, FacultyStudentDetailView,
+    AssignmentCreateView, AssignmentUpdateView, AssignmentDeleteView, FacultySectionListView,
 )
 
 app_name = 'academics'  # Namespace for the app
@@ -72,4 +73,22 @@ path('routine/<int:section_id>/pdf/', views.GenerateRoutinePDF.as_view(), name='
     path('department/courses/', DepartmentHeadCourseListView.as_view(), name='department_course_list'),
     path('faculty/students/', FacultyStudentsView.as_view(), name='faculty_students'),
     path('faculty/students/<int:pk>/', FacultyStudentDetailView.as_view(), name='faculty_student_detail'),
+    # Faculty Class Detail
+    path('faculty/classes/<int:pk>/',
+         FacultyClassDetailView.as_view(),
+         name='faculty_class_detail'),
+
+    # Assignment Management
+    path('class/<int:class_pk>/assignment/add/',
+         AssignmentCreateView.as_view(),
+         name='assignment_create'),
+    path('assignment/<int:pk>/edit/',
+         AssignmentUpdateView.as_view(),
+         name='assignment_edit'),
+    path('assignment/<int:pk>/delete/',
+         AssignmentDeleteView.as_view(),
+         name='assignment_delete'),
+    path('faculty/sections/',
+         FacultySectionListView.as_view(),
+         name='faculty_section_list'),
 ]
