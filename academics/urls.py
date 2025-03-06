@@ -28,7 +28,7 @@ urlpatterns = [
     # Faculty URLs
     path('faculty/', FacultyListView.as_view(), name='faculty_list'),
     path('faculty/<int:pk>/', FacultyDetailView.as_view(), name='faculty_detail'),
-
+    path('faculty/edit-profile/', views.FacultyEditView.as_view(), name='faculty_edit_profile'),
     # Course URLs
     path('courses/', CourseListView.as_view(), name='course_list'),
     path('courses/<int:pk>/', CourseDetailView.as_view(), name='course_detail'),

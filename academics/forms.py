@@ -1,6 +1,8 @@
 from django import forms
 from django.contrib.auth import get_user_model
-from .models import Department, Faculty, Course, ClassSection, Assignment, Exam, ClassSchedule
+from django.forms import inlineformset_factory
+
+from .models import Department, Faculty, Course, ClassSection, Assignment, Exam, ClassSchedule, Education, Publication
 
 User = get_user_model()
 
@@ -13,7 +15,6 @@ class DepartmentForm(forms.ModelForm):
             'description': forms.Textarea(attrs={'rows': 4}),
         }
 
-
 class FacultyForm(forms.ModelForm):
     first_name = forms.CharField(max_length=30)
     last_name = forms.CharField(max_length=30)
@@ -21,10 +22,11 @@ class FacultyForm(forms.ModelForm):
 
     class Meta:
         model = Faculty
-        fields = ['first_name', 'last_name', 'email', 'department', 'title',
-                  'office_location', 'office_hours', 'research_interests']
+        fields = [
+            'first_name', 'last_name', 'email', 'department', 'title',
+            'office_location', 'office_phone', 'research_interests'
+        ]
         widgets = {
-            'office_hours': forms.Textarea(attrs={'rows': 3}),
             'research_interests': forms.Textarea(attrs={'rows': 4}),
         }
 
@@ -32,13 +34,81 @@ class FacultyForm(forms.ModelForm):
         instance = kwargs.get('instance', None)
         if instance:
             initial = kwargs.get('initial', {})
-            initial['first_name'] = instance.user.first_name
-            initial['last_name'] = instance.user.last_name
-            initial['email'] = instance.user.email
+            initial.update({
+                'first_name': instance.user.first_name,
+                'last_name': instance.user.last_name,
+                'email': instance.user.email,
+            })
             kwargs['initial'] = initial
         super().__init__(*args, **kwargs)
+# academics/forms.py
+class FacultyEditForm(forms.ModelForm):
+    first_name = forms.CharField(max_length=30)
+    last_name = forms.CharField(max_length=30)
+    email = forms.EmailField()
 
+    class Meta:
+        model = Faculty
+        fields = [
+            'title', 'department', 'office_location', 'office_phone',
+            'research_interests', 'bio', 'profile_picture'
+        ]
+        widgets = {
+            'research_interests': forms.Textarea(attrs={'rows': 4}),
+            'bio': forms.Textarea(attrs={'rows': 6}),
+        }
 
+    def __init__(self, *args, **kwargs):
+        instance = kwargs.get('instance', None)
+        if instance:
+            initial = kwargs.get('initial', {})
+            initial.update({
+                'first_name': instance.user.first_name,
+                'last_name': instance.user.last_name,
+                'email': instance.user.email,
+            })
+            kwargs['initial'] = initial
+        super().__init__(*args, **kwargs)
+class EducationForm(forms.ModelForm):
+    class Meta:
+        model = Education
+        fields = ['degree', 'institution', 'year', 'field_of_study']
+        widgets = {
+            'year': forms.NumberInput(attrs={'min': 1900, 'max': 2030}),
+            'degree': forms.TextInput(attrs={'class': 'form-control'}),
+            'institution': forms.TextInput(attrs={'class': 'form-control'}),
+            'field_of_study': forms.TextInput(attrs={'class': 'form-control'}),
+        }
+
+class PublicationForm(forms.ModelForm):
+    class Meta:
+        model = Publication
+        fields = ['title', 'journal', 'year', 'citation', 'url', 'doi']
+        widgets = {
+            'year': forms.NumberInput(attrs={'min': 1900, 'max': 2030}),
+            'title': forms.TextInput(attrs={'class': 'form-control'}),
+            'journal': forms.TextInput(attrs={'class': 'form-control'}),
+            'citation': forms.Textarea(attrs={'rows': 3, 'class': 'form-control'}),
+            'url': forms.URLInput(attrs={'class': 'form-control'}),
+            'doi': forms.TextInput(attrs={'class': 'form-control'}),
+        }
+
+# Create formsets
+EducationFormSet = inlineformset_factory(
+    Faculty,
+    Education,
+    form=EducationForm,
+    extra=1,
+    can_delete=True
+)
+
+PublicationFormSet = inlineformset_factory(
+    Faculty,
+    Publication,
+    form=PublicationForm,
+    extra=1,
+    can_delete=True
+)
 class CourseForm(forms.ModelForm):
     class Meta:
         model = Course

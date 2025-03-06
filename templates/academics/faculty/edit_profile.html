@@ -1,0 +1,116 @@
+<!-- templates/academics/faculty/edit_profile.html -->
+
+                {% load static %}
+
+                {% block content %}
+                <div class="container py-4">
+                    <div class="row">
+                        <div class="col-md-8 offset-md-2">
+                            <h2 class="mb-4">Edit Profile</h2>
+
+                            <form method="post" enctype="multipart/form-data">
+                                {% csrf_token %}
+
+                                <!-- Personal Information Card -->
+                                <div class="card mb-4">
+                                    <div class="card-body">
+                                        <h5 class="card-title mb-3">Personal Information</h5>
+                                        {{ form.as_p }}
+                                    </div>
+                                </div>
+
+                                <!-- Education Card -->
+                                <div class="card mb-4">
+                                    <div class="card-body">
+                                        <h5 class="card-title mb-3">Education</h5>
+                                        {{ education_formset.management_form }}
+                                        <div id="education-forms">
+                                            {% for education_form in education_formset %}
+                                                <div class="education-form mb-3 p-3 border rounded">
+                                                    {{ education_form.as_p }}
+                                                    {% if education_form.instance.pk %}
+                                                        <button type="button" class="btn btn-danger btn-sm remove-form">Remove</button>
+                                                    {% endif %}
+                                                </div>
+                                            {% endfor %}
+                                        </div>
+                                        <button type="button" class="btn btn-secondary btn-sm" id="add-education">
+                                            Add Education
+                                        </button>
+                                    </div>
+                                </div>
+
+                                <!-- Publications Card -->
+                                <div class="card mb-4">
+                                    <div class="card-body">
+                                        <h5 class="card-title mb-3">Publications</h5>
+                                        {{ publication_formset.management_form }}
+                                        <div id="publication-forms">
+                                            {% for publication_form in publication_formset %}
+                                                <div class="publication-form mb-3 p-3 border rounded">
+                                                    {{ publication_form.as_p }}
+                                                    {% if publication_form.instance.pk %}
+                                                        <button type="button" class="btn btn-danger btn-sm remove-form">Remove</button>
+                                                    {% endif %}
+                                                </div>
+                                            {% endfor %}
+                                        </div>
+                                        <button type="button" class="btn btn-secondary btn-sm" id="add-publication">
+                                            Add Publication
+                                        </button>
+                                    </div>
+                                </div>
+
+                                <div class="mt-4">
+                                    <button type="submit" class="btn btn-primary">Save Changes</button>
+                                    <a href="{% url 'academics:faculty_detail' faculty.pk %}" class="btn btn-secondary">Cancel</a>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+
+                <script>
+                document.addEventListener('DOMContentLoaded', function() {
+                    // Handle Education formset
+                    const educationForms = document.getElementById('education-forms');
+                    const addEducationBtn = document.getElementById('add-education');
+                    const educationTotalForms = document.getElementById('id_education_set-TOTAL_FORMS');
+
+                    if (addEducationBtn) {
+                        addEducationBtn.addEventListener('click', function() {
+                            const formIdx = educationForms.children.length;
+                            const emptyForm = document.getElementById('empty-education-form').innerHTML.replace(/__prefix__/g, formIdx);
+                            educationForms.insertAdjacentHTML('beforeend', emptyForm);
+                            educationTotalForms.value = formIdx + 1;
+                        });
+                    }
+
+                    // Handle Publication formset
+                    const publicationForms = document.getElementById('publication-forms');
+                    const addPublicationBtn = document.getElementById('add-publication');
+                    const publicationTotalForms = document.getElementById('id_publication_set-TOTAL_FORMS');
+
+                    if (addPublicationBtn) {
+                        addPublicationBtn.addEventListener('click', function() {
+                            const formIdx = publicationForms.children.length;
+                            const emptyForm = document.getElementById('empty-publication-form').innerHTML.replace(/__prefix__/g, formIdx);
+                            publicationForms.insertAdjacentHTML('beforeend', emptyForm);
+                            publicationTotalForms.value = formIdx + 1;
+                        });
+                    }
+
+                    // Handle remove buttons
+                    document.addEventListener('click', function(e) {
+                        if (e.target.classList.contains('remove-form')) {
+                            const formDiv = e.target.closest('.education-form, .publication-form');
+                            const deleteCheckbox = formDiv.querySelector('input[type=checkbox][name$=DELETE]');
+                            if (deleteCheckbox) {
+                                deleteCheckbox.checked = true;
+                                formDiv.style.display = 'none';
+                            }
+                        }
+                    });
+                });
+                </script>
+                {% endblock %}

@@ -11,8 +11,13 @@ from rest_framework.response import Response
 from rest_framework import viewsets
 from rest_framework.permissions import IsAuthenticated
 
+from .forms import FacultyEditForm
 from .models import Department, Faculty, Course, ClassSection, Enrollment, Assignment, Exam, ClassSchedule
-
+from .forms import (
+    FacultyEditForm,
+    EducationFormSet,
+    PublicationFormSet
+)
 
 class DepartmentListView(ListView):
     model = Department
@@ -68,6 +73,57 @@ class FacultyDetailView(DetailView):
         return context
 
 
+
+class FacultyEditView(LoginRequiredMixin, View):
+    template_name = 'academics/faculty/edit_profile.html'
+
+    def get(self, request):
+        try:
+            faculty = Faculty.objects.get(user=request.user)
+            form = FacultyEditForm(instance=faculty)
+            education_formset = EducationFormSet(instance=faculty, prefix='education')
+            publication_formset = PublicationFormSet(instance=faculty, prefix='publication')
+            return render(request, self.template_name, {
+                'form': form,
+                'faculty': faculty,
+                'education_formset': education_formset,
+                'publication_formset': publication_formset
+            })
+        except Faculty.DoesNotExist:
+            messages.error(request, "You don't have faculty privileges.")
+            return redirect('home')
+
+    def post(self, request):
+        try:
+            faculty = Faculty.objects.get(user=request.user)
+            form = FacultyEditForm(request.POST, request.FILES, instance=faculty)
+            education_formset = EducationFormSet(request.POST, instance=faculty, prefix='education')
+            publication_formset = PublicationFormSet(request.POST, instance=faculty, prefix='publication')
+
+            if (form.is_valid() and education_formset.is_valid()
+                and publication_formset.is_valid()):
+                user = faculty.user
+                user.first_name = form.cleaned_data['first_name']
+                user.last_name = form.cleaned_data['last_name']
+                user.email = form.cleaned_data['email']
+                user.save()
+
+                form.save()
+                education_formset.save()
+                publication_formset.save()
+
+                messages.success(request, "Profile updated successfully.")
+                return redirect('academics:faculty_detail', pk=faculty.pk)
+
+            return render(request, self.template_name, {
+                'form': form,
+                'faculty': faculty,
+                'education_formset': education_formset,
+                'publication_formset': publication_formset
+            })
+        except Faculty.DoesNotExist:
+            messages.error(request, "You don't have faculty privileges.")
+            return redirect('home')
 class CourseListView(ListView):
     model = Course
     template_name = 'academics/courses.html'
