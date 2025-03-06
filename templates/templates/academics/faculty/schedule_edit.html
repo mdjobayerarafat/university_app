@@ -1,0 +1,139 @@
+{% load static %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1>Edit Schedule - {{ section.course.code }} {{ section.section_number }}</h1>
+        <a href="{% url 'academics:faculty_class_detail' pk=section.pk %}" class="btn btn-outline-secondary">
+            <i class="fas fa-arrow-left"></i> Back to Class
+        </a>
+    </div>
+
+    <div class="row">
+        <div class="col-md-8">
+            <div class="card">
+                <div class="card-header">Schedule Editor</div>
+                <div class="card-body">
+                    <form method="post">
+                        {% csrf_token %}
+
+                        <div class="form-check mb-3">
+                            <input type="checkbox" class="form-check-input" id="replace_schedules" name="replace_schedules">
+                            <label class="form-check-label" for="replace_schedules">
+                                Replace existing schedules
+                            </label>
+                        </div>
+
+                        <div id="schedule-entries">
+                            {% for schedule in schedules %}
+                                <div class="schedule-entry card mb-3">
+                                    <div class="card-body">
+                                        <div class="row">
+                                            <div class="col-md-4">
+                                                <select name="day" class="form-control" required>
+                                                    {% for day_code, day_name in day_choices %}
+                                                        <option value="{{ day_code }}"
+                                                                {% if schedule.day == day_code %}selected{% endif %}>
+                                                            {{ day_name }}
+                                                        </option>
+                                                    {% endfor %}
+                                                </select>
+                                            </div>
+                                            <div class="col-md-3">
+                                                <input type="time" name="start_time" class="form-control"
+                                                       value="{{ schedule.start_time|time:'H:i' }}" required>
+                                            </div>
+                                            <div class="col-md-3">
+                                                <input type="time" name="end_time" class="form-control"
+                                                       value="{{ schedule.end_time|time:'H:i' }}" required>
+                                            </div>
+                                            <div class="col-md-2">
+                                                <button type="button" class="btn btn-danger remove-schedule">
+                                                    <i class="fas fa-trash"></i>
+                                                </button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            {% endfor %}
+                        </div>
+
+                        <button type="button" id="add-schedule" class="btn btn-outline-primary mb-3">
+                            <i class="fas fa-plus"></i> Add Schedule
+                        </button>
+
+                        <div class="mt-4">
+                            <button type="submit" class="btn btn-primary">Save Changes</button>
+                            <a href="{% url 'academics:faculty_class_detail' pk=section.pk %}"
+                               class="btn btn-secondary">Cancel</a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-4">
+            <div class="card">
+                <div class="card-header">Current Schedule</div>
+                <div class="card-body">
+                    {% if schedules %}
+                        <ul class="list-unstyled">
+                            {% for schedule in schedules %}
+                                <li class="mb-2">
+                                    <strong>{{ schedule.get_day_display }}:</strong><br>
+                                    {{ schedule.start_time|time:"g:i A" }} - {{ schedule.end_time|time:"g:i A" }}
+                                </li>
+                            {% endfor %}
+                        </ul>
+                    {% else %}
+                        <p class="text-muted">No schedules set</p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% block extra_js %}
+<script>
+document.getElementById('add-schedule').addEventListener('click', function() {
+    const template = `
+        <div class="schedule-entry card mb-3">
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-4">
+                        <select name="day" class="form-control" required>
+                            {% for day_code, day_name in day_choices %}
+                                <option value="{{ day_code }}">{{ day_name }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="col-md-3">
+                        <input type="time" name="start_time" class="form-control" required>
+                    </div>
+                    <div class="col-md-3">
+                        <input type="time" name="end_time" class="form-control" required>
+                    </div>
+                    <div class="col-md-2">
+                        <button type="button" class="btn btn-danger remove-schedule">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    `;
+    document.getElementById('schedule-entries').insertAdjacentHTML('beforeend', template);
+});
+
+document.getElementById('schedule-entries').addEventListener('click', function(e) {
+    if (e.target.classList.contains('remove-schedule') ||
+        e.target.parentElement.classList.contains('remove-schedule')) {
+        const entry = e.target.closest('.schedule-entry');
+        entry.remove();
+    }
+});
+</script>
+{% endblock %}
+
+{% endblock %}

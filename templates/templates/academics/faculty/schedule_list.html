@@ -1,0 +1,50 @@
+{% block content %}
+        <div class="container mt-4">
+            <h1>My Class Schedules</h1>
+
+            {% if schedules %}
+                <table class="table table-striped">
+                    <thead>
+                        <tr>
+                            <th>Day</th>
+                            <th>Course</th>
+                            <th>Section</th>
+                            <th>Time</th>
+                            <th>Default Course</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for schedule in schedules %}
+                        <tr>
+                            <td>
+                                {% if schedule.day == 'MON' %}Monday
+                                {% elif schedule.day == 'TUE' %}Tuesday
+                                {% elif schedule.day == 'WED' %}Wednesday
+                                {% elif schedule.day == 'THU' %}Thursday
+                                {% elif schedule.day == 'FRI' %}Friday
+                                {% elif schedule.day == 'SAT' %}Saturday
+                                {% elif schedule.day == 'SUN' %}Sunday
+                                {% endif %}
+                            </td>
+                            <td>{{ schedule.class_section.course.code }}: {{ schedule.class_section.course.name }}</td>
+                            <td>{{ schedule.class_section.section_number }}</td>
+                            <td>
+                                {{ schedule.start_time|time:"H:i" }} -
+                                {{ schedule.end_time|time:"H:i" }}
+                            </td>
+                            <td>
+                                {% if schedule.default_course %}
+                                    {{ schedule.default_course.code }}
+                                {% else %}
+                                    <span class="text-muted">No default</span>
+                                {% endif %}
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            {% else %}
+                <p class="alert alert-info">No schedules found.</p>
+            {% endif %}
+        </div>
+        {% endblock %}

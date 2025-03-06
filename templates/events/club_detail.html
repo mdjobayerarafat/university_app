@@ -1,0 +1,431 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ club.name }} - UniHub</title>
+    <style>
+        :root {
+            --primary: #2c3e50;
+            --secondary: #34495e;
+            --accent: #e67e22;
+            --light: #ecf0f1;
+            --dark: #2c3e50;
+            --success: #27ae60;
+            --danger: #e74c3c;
+            --warning: #f39c12;
+            --info: #3498db;
+            --muted: #95a5a6;
+        }
+
+        body {
+            background-color: #f5f7fa;
+            color: var(--dark);
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+        }
+
+        header {
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            color: white;
+            padding: 1rem;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .brand {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .logo {
+            font-size: 1.5rem;
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+        }
+
+        .logo-icon {
+            margin-right: 0.5rem;
+            font-size: 1.8rem;
+        }
+
+        .notification-bell {
+            position: relative;
+            cursor: pointer;
+        }
+
+        .notification-badge {
+            position: absolute;
+            top: -8px;
+            right: -8px;
+            background-color: var(--accent);
+            color: white;
+            border-radius: 50%;
+            width: 18px;
+            height: 18px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.7rem;
+        }
+
+        nav {
+            background-color: var(--primary);
+            padding: 0.8rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .nav-links {
+            display: flex;
+            list-style: none;
+            margin: 0;
+            padding: 0;
+        }
+
+        .nav-links li {
+            margin: 0 0.8rem;
+        }
+
+        .nav-links a {
+            color: white;
+            text-decoration: none;
+            font-weight: 500;
+            padding: 0.4rem 0.8rem;
+            border-radius: 4px;
+            transition: background-color 0.3s;
+            display: flex;
+            align-items: center;
+        }
+
+        .nav-links a i {
+            margin-right: 0.4rem;
+        }
+
+        .nav-links a:hover, .nav-links a.active {
+            background-color: rgba(255, 255, 255, 0.2);
+        }
+
+        .profile {
+            position: relative;
+        }
+
+        .profile:hover .profile-dropdown {
+            display: block;
+        }
+
+        .profile-dropdown {
+            display: none;
+            position: absolute;
+            top: 100%;
+            right: 0;
+            background-color: white;
+            box-shadow: 0 3px 10px rgba(0, 0, 0, 0.2);
+            border-radius: 4px;
+            min-width: 150px;
+            z-index: 100;
+        }
+
+        .profile-dropdown ul {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        .profile-dropdown li {
+            margin: 0;
+        }
+
+        .profile-dropdown a {
+            color: var(--primary);
+            padding: 0.8rem 1.2rem;
+            display: block;
+            text-decoration: none;
+            transition: background-color 0.2s;
+        }
+
+        .profile-dropdown a:hover {
+            background-color: #f5f5f5;
+            color: var(--accent);
+        }
+
+        .profile-img {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            background-color: var(--accent);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 0.8rem;
+            font-weight: bold;
+            color: white;
+        }
+
+        .club-detail-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 1.5rem;
+        }
+
+        .club-header {
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+
+        .club-banner {
+            max-width: 300px;
+            margin: 0 auto 1rem;
+        }
+
+        .club-banner img {
+            width: 100%;
+            height: auto;
+            border-radius: 8px;
+        }
+
+        .club-header h1 {
+            color: var(--primary);
+            margin-bottom: 0.5rem;
+        }
+
+        .founded {
+            color: var(--muted);
+            font-size: 0.9rem;
+        }
+
+        .club-content {
+            display: grid;
+            grid-template-columns: 2fr 1fr;
+            gap: 1.5rem;
+        }
+
+        .main-info, .sidebar {
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+            padding: 1.5rem;
+        }
+
+        .about-section h2, .upcoming-events h2, .members-section h2, .social-links h2 {
+            color: var(--primary);
+            margin-bottom: 1rem;
+        }
+
+        .about-section p {
+            color: var(--muted);
+            line-height: 1.6;
+        }
+
+        .upcoming-events {
+            margin-top: 2rem;
+        }
+
+        .events-grid {
+            display: grid;
+            gap: 1rem;
+        }
+
+        .event-card {
+            border: 1px solid var(--light);
+            border-radius: 4px;
+            padding: 1rem;
+            transition: transform 0.3s;
+        }
+
+        .event-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .event-card h3 {
+            color: var(--primary);
+            margin-bottom: 0.5rem;
+        }
+
+        .event-date, .event-location {
+            color: var(--muted);
+            font-size: 0.9rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .btn {
+            padding: 0.5rem 1rem;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: 500;
+            transition: background-color 0.3s;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .btn-primary {
+            background-color: var(--primary);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background-color: #243442;
+        }
+
+        .members-list {
+            margin-top: 1rem;
+        }
+
+        .member-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 0.5rem 0;
+            border-bottom: 1px solid var(--light);
+        }
+
+        .member-name {
+            color: var(--dark);
+        }
+
+        .member-role {
+            color: var(--muted);
+            font-size: 0.9rem;
+        }
+
+        .social-links {
+            margin-top: 2rem;
+        }
+
+        .social-link {
+            display: block;
+            padding: 0.5rem;
+            margin: 0.5rem 0;
+            background: var(--light);
+            border-radius: 4px;
+            text-decoration: none;
+            color: var(--primary);
+            transition: background-color 0.3s;
+        }
+
+        .social-link:hover {
+            background-color: #e0e0e0;
+        }
+
+        @media (max-width: 768px) {
+            .club-content {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="brand">
+            <div class="logo">
+                <span class="logo-icon">🏛️</span>
+                UniHub Clubs
+            </div>
+           <div class="notification-bell">
+            <a href="{% url 'notifications:list' %}" style="text-decoration: none; color: inherit;">
+                <span>🔔</span>
+                {% if unread_notifications_count %}
+                    <div class="notification-badge">{{ unread_notifications_count }}</div>
+                {% endif %}
+            </a>
+        </div>
+        </div>
+    </header>
+
+    <nav>
+        <ul class="nav-links">
+        <li><a href="{% url 'dashboard' %}">Home</a></li>
+             <li><a href="{% url 'transportation:route_list' %}"><i>🚌</i> Transport</a></li>
+            <li><a href="{% url 'events:club_list' %}"><i>🏛️</i> Clubs</a></li>
+            <li><a href="{% url 'events:event_list' %}"><i>🎉</i> Events</a></li>
+            <li><a href="{% url 'events:my_events' %}" class="active"><i>📅</i> My Events</a></li>
+        </ul>
+
+        <div class="profile">
+            <div class="profile-img">{{ request.user.first_name|first }}{{ request.user.last_name|first }}</div>
+            <span>{{ request.user.username }}</span>
+            <div class="profile-dropdown">
+                <ul>
+                    <li><a href="{% url 'profile' %}">My Profile</a></li>
+                    <li><a href="{% url 'logout' %}">Logout</a></li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <div class="club-detail-container">
+        <div class="club-header">
+            {% if club.logo %}
+                <div class="club-banner">
+                    <img src="{{ club.logo.url }}" alt="{{ club.name }}">
+                </div>
+            {% endif %}
+            <h1>{{ club.name }}</h1>
+            <p class="founded">Founded in {{ club.founded_year }}</p>
+        </div>
+
+        <div class="club-content">
+            <div class="main-info">
+                <div class="about-section">
+                    <h2>About the Club</h2>
+                    <p>{{ club.description|linebreaks }}</p>
+                </div>
+
+                <div class="upcoming-events">
+                    <h2>Upcoming Events</h2>
+                    {% if upcoming_events %}
+                        <div class="events-grid">
+                            {% for event in upcoming_events %}
+                                <div class="event-card">
+                                    <div class="event-info">
+                                        <h3>{{ event.title }}</h3>
+                                        <p class="event-date">
+                                            {{ event.start_datetime|date:"F j, Y" }}
+                                            at {{ event.start_datetime|time:"g:i A" }}
+                                        </p>
+                                        <p class="event-location">{{ event.location }}</p>
+                                    </div>
+                                    <a href="{% url 'events:event_detail' event.pk %}" class="btn btn-primary">View Event</a>
+                                </div>
+                            {% endfor %}
+                        </div>
+                    {% else %}
+                        <p>No upcoming events scheduled.</p>
+                    {% endif %}
+                </div>
+            </div>
+
+            <div class="sidebar">
+                <div class="members-section">
+                    <h2>Club Members</h2>
+                    <div class="members-list">
+                        {% for membership in club_members %}
+                            <div class="member-item">
+                                <span class="member-name">{{ membership.user.get_full_name }}</span>
+                                <span class="member-role">{{ membership.get_role_display }}</span>
+                            </div>
+                        {% endfor %}
+                    </div>
+                </div>
+
+                {% if club.social_media %}
+                    <div class="social-links">
+                        <h2>Connect With Us</h2>
+                        {% for platform, link in club.social_media.items %}
+                            <a href="{{ link }}" class="social-link" target="_blank">
+                                {{ platform|title }}
+                            </a>
+                        {% endfor %}
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</body>
+</html>

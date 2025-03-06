@@ -1,0 +1,455 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>All Rooms - UniHub</title>
+    <style>
+        :root {
+            --primary: #2c3e50;
+            --secondary: #34495e;
+            --accent: #e67e22;
+            --light: #ecf0f1;
+            --dark: #2c3e50;
+            --success: #27ae60;
+            --danger: #e74c3c;
+            --warning: #f39c12;
+            --info: #3498db;
+            --muted: #95a5a6;
+        }
+
+        body {
+            background-color: #f5f7fa;
+            color: var(--dark);
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+        }
+
+        header {
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            color: white;
+            padding: 1rem;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .brand {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .logo {
+            font-size: 1.5rem;
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+        }
+
+        .logo-icon {
+            margin-right: 0.5rem;
+            font-size: 1.8rem;
+        }
+
+        .notification-bell {
+            position: relative;
+            cursor: pointer;
+        }
+
+        .notification-badge {
+            position: absolute;
+            top: -8px;
+            right: -8px;
+            background-color: var(--accent);
+            color: white;
+            border-radius: 50%;
+            width: 18px;
+            height: 18px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.7rem;
+        }
+
+        nav {
+            background-color: var(--primary);
+            padding: 0.8rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .nav-links {
+            display: flex;
+            list-style: none;
+            margin: 0;
+            padding: 0;
+        }
+
+        .nav-links li {
+            margin: 0 0.8rem;
+        }
+
+        .nav-links a {
+            color: white;
+            text-decoration: none;
+            font-weight: 500;
+            padding: 0.4rem 0.8rem;
+            border-radius: 4px;
+            transition: background-color 0.3s;
+            display: flex;
+            align-items: center;
+        }
+
+        .nav-links a i {
+            margin-right: 0.4rem;
+        }
+
+        .nav-links a:hover, .nav-links a.active {
+            background-color: rgba(255, 255, 255, 0.2);
+        }
+
+        .profile {
+            position: relative;
+        }
+
+        .profile:hover .profile-dropdown {
+            display: block;
+        }
+
+        .profile-dropdown {
+            display: none;
+            position: absolute;
+            top: 100%;
+            right: 0;
+            background-color: white;
+            box-shadow: 0 3px 10px rgba(0, 0, 0, 0.2);
+            border-radius: 4px;
+            min-width: 150px;
+            z-index: 100;
+        }
+
+        .profile-dropdown ul {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        .profile-dropdown li {
+            margin: 0;
+        }
+
+        .profile-dropdown a {
+            color: var(--primary);
+            padding: 0.8rem 1.2rem;
+            display: block;
+            text-decoration: none;
+            transition: background-color 0.2s;
+        }
+
+        .profile-dropdown a:hover {
+            background-color: #f5f5f5;
+            color: var(--accent);
+        }
+
+        .profile-img {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            background-color: var(--accent);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 0.8rem;
+            font-weight: bold;
+            color: white;
+        }
+
+        .rooms-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 1.5rem;
+        }
+
+        .rooms-container h1 {
+            color: var(--primary);
+            margin-bottom: 1.5rem;
+        }
+
+        .filters-section {
+            margin-bottom: 2rem;
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+            padding: 1.5rem;
+        }
+
+        .filter-form {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+
+        .filter-group {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 1rem;
+            width: 100%;
+        }
+
+        .filter-select, .search-input {
+            flex: 1;
+            padding: 0.5rem 1rem;
+            border: 1px solid var(--light);
+            border-radius: 4px;
+            font-size: 1rem;
+            min-width: 200px;
+        }
+
+        .filter-button {
+            padding: 0.5rem 1rem;
+            background-color: var(--primary);
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: 500;
+            transition: background-color 0.3s;
+        }
+
+        .filter-button:hover {
+            background-color: #243442;
+        }
+
+        .rooms-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 1.5rem;
+        }
+
+        .room-card {
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+            overflow: hidden;
+            transition: transform 0.3s;
+        }
+
+        .room-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .room-header {
+            padding: 1rem;
+            background: var(--light);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .room-header h2 {
+            margin: 0;
+            font-size: 1.2rem;
+            color: var(--primary);
+        }
+
+        .room-type {
+            background-color: var(--accent);
+            color: white;
+            padding: 0.25rem 0.5rem;
+            border-radius: 4px;
+            font-size: 0.75rem;
+        }
+
+        .room-info {
+            padding: 1rem;
+        }
+
+        .room-info p {
+            margin: 0.5rem 0;
+            color: var(--muted);
+        }
+
+        .view-button {
+            display: block;
+            text-align: center;
+            padding: 0.5rem 1rem;
+            background-color: var(--primary);
+            color: white;
+            text-decoration: none;
+            transition: background-color 0.3s;
+        }
+
+        .view-button:hover {
+            background-color: #243442;
+        }
+
+        .no-results {
+            grid-column: 1 / -1;
+            text-align: center;
+            padding: 2rem;
+            color: var(--muted);
+        }
+
+        .pagination {
+            margin-top: 2rem;
+            display: flex;
+            justify-content: center;
+            gap: 0.5rem;
+        }
+
+        .pagination a, .current-page {
+            padding: 0.5rem 1rem;
+            border-radius: 4px;
+            text-decoration: none;
+        }
+
+        .pagination a {
+            background-color: var(--primary);
+            color: white;
+        }
+
+        .current-page {
+            background-color: var(--light);
+            color: var(--dark);
+        }
+
+        @media (max-width: 768px) {
+            .filter-select, .search-input {
+                width: 100%;
+            }
+
+            .filter-button {
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="brand">
+            <div class="logo">
+                <span class="logo-icon">🚪</span>
+                UniHub Rooms
+            </div>
+            <div class="notification-bell">
+                <a href="{% url 'notifications:list' %}" style="text-decoration: none; color: inherit;">
+                    <span>🔔</span>
+                    {% if unread_notifications_count %}
+                        <div class="notification-badge">{{ unread_notifications_count }}</div>
+                    {% endif %}
+                </a>
+            </div>
+        </div>
+    </header>
+
+    <nav>
+        <ul class="nav-links">
+            <li><a href="{% url 'dashboard' %}">Home</a></li>
+            <li><a href="{% url 'navigation:building_list' %}"><i>🏛️</i> Buildings</a></li>
+            <li><a href="{% url 'navigation:room_list' %}"><i>🚪</i> Rooms</a></li>
+            <li><a href="{% url 'navigation:marker_list' %}"><i>📍</i> AR Markers</a></li>
+            <li><a href="{% url 'navigation:nearby_locations' %}"><i>📍</i> Nearby</a></li>
+        </ul>
+
+        <div class="profile">
+            <div class="profile-img">{{ request.user.first_name|first }}{{ request.user.last_name|first }}</div>
+            <span>{{ request.user.username }}</span>
+            <div class="profile-dropdown">
+                <ul>
+                    <li><a href="{% url 'profile' %}">My Profile</a></li>
+                    <li><a href="{% url 'logout' %}">Logout</a></li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <div class="rooms-container">
+        <h1>All Rooms</h1>
+
+        <div class="filters-section">
+            <form method="get" class="filter-form">
+                <div class="filter-group">
+                    <select name="building" class="filter-select">
+                        <option value="">All Buildings</option>
+                        {% for building in buildings %}
+                            <option value="{{ building.id }}"
+                                    {% if request.GET.building|add:"0" == building.id %}selected{% endif %}>
+                                {{ building.name }}
+                            </option>
+                        {% endfor %}
+                    </select>
+
+                    <select name="floor" class="filter-select">
+                        <option value="">All Floors</option>
+                        {% for floor in floors %}
+                            <option value="{{ floor }}"
+                                    {% if request.GET.floor == floor|stringformat:"i" %}selected{% endif %}>
+                                Floor {{ floor }}
+                            </option>
+                        {% endfor %}
+                    </select>
+
+                    <select name="type" class="filter-select">
+                        <option value="">All Types</option>
+                        {% for type in room_types %}
+                            <option value="{{ type }}"
+                                    {% if request.GET.type == type %}selected{% endif %}>
+                                {{ type }}
+                            </option>
+                        {% endfor %}
+                    </select>
+
+                    <input type="text" name="search" placeholder="Search rooms..."
+                           value="{{ request.GET.search }}" class="search-input">
+
+                    <button type="submit" class="filter-button">Apply Filters</button>
+                </div>
+            </form>
+        </div>
+
+        <div class="rooms-grid">
+            {% for room in rooms %}
+                <div class="room-card">
+                    <div class="room-header">
+                        <h2>Room {{ room.number }}</h2>
+                        <span class="room-type">{{ room.room_type }}</span>
+                    </div>
+                    <div class="room-info">
+                        <p><strong>Building:</strong> {{ room.building.name }}</p>
+                        <p><strong>Floor:</strong> {{ room.floor }}</p>
+                        {% if room.capacity %}
+                            <p><strong>Capacity:</strong> {{ room.capacity }} people</p>
+                        {% endif %}
+                    </div>
+                    <a href="{% url 'navigation:room_detail' room.pk %}" class="view-button">View Details</a>
+                </div>
+            {% empty %}
+                <div class="no-results">
+                    <p>No rooms found matching your criteria.</p>
+                </div>
+            {% endfor %}
+        </div>
+
+        {% if is_paginated %}
+            <div class="pagination">
+                {% if page_obj.has_previous %}
+                    <a href="?{% if request.GET.urlencode %}{{ request.GET.urlencode }}&{% endif %}page=1">&laquo; First</a>
+                    <a href="?{% if request.GET.urlencode %}{{ request.GET.urlencode }}&{% endif %}page={{ page_obj.previous_page_number }}">Previous</a>
+                {% endif %}
+
+                <span class="current-page">
+                    Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}
+                </span>
+
+                {% if page_obj.has_next %}
+                    <a href="?{% if request.GET.urlencode %}{{ request.GET.urlencode }}&{% endif %}page={{ page_obj.next_page_number }}">Next</a>
+                    <a href="?{% if request.GET.urlencode %}{{ request.GET.urlencode }}&{% endif %}page={{ page_obj.paginator.num_pages }}">Last &raquo;</a>
+                {% endif %}
+            </div>
+        {% endif %}
+    </div>
+</body>
+</html>

@@ -1,0 +1,539 @@
+{% block title %}{{ stop.name }} - Bus Stop Details{% endblock %}
+
+{% block content %}
+<!-- Navigation Bar -->
+<header>
+    <div class="brand">
+        <div class="logo">
+            <span class="logo-icon">🚌</span>
+            UniHub Transport
+        </div>
+        <div class="notification-bell">
+            <a href="{% url 'notifications:list' %}" style="text-decoration: none; color: inherit;">
+                <span>🔔</span>
+                {% if unread_notifications_count %}
+                    <div class="notification-badge">{{ unread_notifications_count }}</div>
+                {% endif %}
+            </a>
+        </div>
+    </div>
+</header>
+
+<nav>
+    <ul class="nav-links">
+        <li><a href="{% url 'dashboard' %}">Home</a></li>
+        <li><a href="{% url 'transportation:route_list' %}" ><i>🚌</i> Bus Routes</a></li>
+
+        <li><a href="{% url 'transportation:alert_list' %}"><i>⚠️</i> Bus Alert</a></li>
+    </ul>
+
+    <div class="profile">
+        <div class="profile-img">{{ request.user.first_name|first }}{{ request.user.last_name|first }}</div>
+        <span>{{ request.user.username }}</span>
+        <div class="profile-dropdown">
+            <ul>
+                <li><a href="{% url 'profile' %}">My Profile</a></li>
+                <li><a href="{% url 'logout' %}">Logout</a></li>
+            </ul>
+        </div>
+    </div>
+</nav>
+
+<!-- Main Content -->
+<div class="stop-detail-container">
+    <div class="stop-header">
+        <div class="stop-title-section">
+            <h1 class="stop-name">{{ stop.name }}</h1>
+            <p class="stop-address">{{ stop.address }}</p>
+        </div>
+        <div class="stop-actions">
+            <a href="{% url 'transportation:bus_tracker' %}" class="btn btn-primary">
+                <i class="icon">🔍</i> Track Buses
+            </a>
+            <a href="javascript:history.back()" class="btn btn-outline">
+                Back
+            </a>
+        </div>
+    </div>
+
+    <div class="detail-grid">
+        <div class="left-column">
+            <div class="card">
+                <div class="card-header">
+                    <h2>Routes Serving This Stop</h2>
+                    <span class="route-count">{{ routes|length }} routes</span>
+                </div>
+                <div class="card-body">
+                    <div class="routes-list">
+                        {% if routes %}
+                            {% for route in routes %}
+                                <div class="route-item" style="border-left: 4px solid {{ route.color_code }}">
+                                    <div class="route-details">
+                                        <h3 class="route-name">{{ route.name }}</h3>
+                                        <p class="route-description">{{ route.description|truncatechars:100 }}</p>
+                                    </div>
+                                    <a href="{% url 'transportation:route_detail' route.pk %}" class="btn btn-sm">
+                                        View Route
+                                    </a>
+                                </div>
+                            {% endfor %}
+                        {% else %}
+                            <div class="no-routes">
+                                <p>No active routes are currently serving this stop.</p>
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="right-column">
+            <div class="card">
+                <div class="card-header">
+                    <h2>Arriving Buses</h2>
+                </div>
+                <div class="card-body">
+                    {% if arriving_buses %}
+                        <div class="arrival-list">
+                            {% for arrival in arriving_buses %}
+                                <div class="arrival-item" style="border-left: 4px solid {{ arrival.route.color_code }}">
+                                    <div class="arrival-route">
+                                        <span class="route-name">{{ arrival.route.name }}</span>
+                                        <span class="bus-number">Bus #{{ arrival.bus.bus_number }}</span>
+                                    </div>
+                                    <div class="arrival-time">
+                                        <span class="time">{{ arrival.arrival_time|time:"g:i a" }}</span>
+                                        <span class="eta">Arriving in {{ arrival.arrival_time|timeuntil }}</span>
+                                    </div>
+                                </div>
+                            {% endfor %}
+                        </div>
+                    {% else %}
+                        <div class="no-arrivals">
+                            <p>No buses are currently scheduled to arrive soon.</p>
+                            <p class="sub-text">Check back later for updates.</p>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+
+            <div class="card map-card">
+                <div class="card-header">
+                    <h2>Stop Location</h2>
+                </div>
+                <div class="map-container">
+                    <div id="bus-tracker-map" style="height: 250px;"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Updated CSS Styles -->
+<style>
+    :root {
+        --primary: #2c3e50;
+        --secondary: #34495e;
+        --accent: #e67e22;
+        --light: #ecf0f1;
+        --dark: #2c3e50;
+        --success: #27ae60;
+        --danger: #e74c3c;
+        --warning: #f39c12;
+        --info: #3498db;
+        --muted: #95a5a6;
+    }
+
+    body {
+        background-color: #f5f7fa;
+        color: var(--dark);
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        margin: 0;
+    }
+
+    header {
+        background: linear-gradient(135deg, var(--primary), var(--secondary));
+        color: white;
+        padding: 1rem;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        position: sticky;
+        top: 0;
+        z-index: 100;
+    }
+
+    .brand {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+    }
+
+    .logo {
+        font-size: 1.5rem;
+        font-weight: bold;
+        display: flex;
+        align-items: center;
+    }
+
+    .logo-icon {
+        margin-right: 0.5rem;
+        font-size: 1.8rem;
+    }
+
+    .notification-bell {
+        position: relative;
+        cursor: pointer;
+    }
+
+    .notification-badge {
+        position: absolute;
+        top: -8px;
+        right: -8px;
+        background-color: var(--accent);
+        color: white;
+        border-radius: 50%;
+        width: 18px;
+        height: 18px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 0.7rem;
+    }
+
+    nav {
+        background-color: var(--primary);
+        padding: 0.8rem;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    .nav-links {
+        display: flex;
+        list-style: none;
+        margin: 0;
+        padding: 0;
+    }
+
+    .nav-links li {
+        margin: 0 0.8rem;
+    }
+
+    .nav-links a {
+        color: white;
+        text-decoration: none;
+        font-weight: 500;
+        padding: 0.4rem 0.8rem;
+        border-radius: 4px;
+        transition: background-color 0.3s;
+        display: flex;
+        align-items: center;
+    }
+
+    .nav-links a i {
+        margin-right: 0.4rem;
+    }
+
+    .nav-links a:hover, .nav-links a.active {
+        background-color: rgba(255, 255, 255, 0.2);
+    }
+
+    .profile {
+        position: relative;
+    }
+
+    .profile:hover .profile-dropdown {
+        display: block;
+    }
+
+    .profile-dropdown {
+        display: none;
+        position: absolute;
+        top: 100%;
+        right: 0;
+        background-color: white;
+        box-shadow: 0 3px 10px rgba(0, 0, 0, 0.2);
+        border-radius: 4px;
+        min-width: 150px;
+        z-index: 100;
+    }
+
+    .profile-dropdown ul {
+        list-style: none;
+        padding: 0;
+        margin: 0;
+    }
+
+    .profile-dropdown li {
+        margin: 0;
+    }
+
+    .profile-dropdown a {
+        color: var(--primary);
+        padding: 0.8rem 1.2rem;
+        display: block;
+        text-decoration: none;
+        transition: background-color 0.2s;
+    }
+
+    .profile-dropdown a:hover {
+        background-color: #f5f5f5;
+        color: var(--accent);
+    }
+
+    .profile-img {
+        width: 36px;
+        height: 36px;
+        border-radius: 50%;
+        background-color: var(--accent);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin-right: 0.8rem;
+        font-weight: bold;
+        color: white;
+    }
+
+    .stop-detail-container {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 2rem;
+    }
+
+    .stop-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        padding: 1.5rem;
+        background-color: white;
+        border-radius: 0.5rem;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+        margin-bottom: 1.5rem;
+    }
+
+    .stop-name {
+        font-size: 1.75rem;
+        font-weight: 700;
+        margin: 0 0 0.25rem 0;
+    }
+
+    .stop-address {
+        color: var(--muted);
+        margin: 0;
+    }
+
+    .stop-actions {
+        display: flex;
+        gap: 0.75rem;
+    }
+
+    .btn {
+        display: inline-flex;
+        align-items: center;
+        padding: 0.625rem 1rem;
+        border-radius: 0.375rem;
+        font-weight: 500;
+        text-decoration: none;
+        transition: all 0.2s;
+    }
+
+    .btn-sm {
+        padding: 0.375rem 0.75rem;
+        font-size: 0.875rem;
+    }
+
+    .btn-primary {
+        background-color: var(--primary);
+        color: white;
+    }
+
+    .btn-primary:hover {
+        background-color: #243442;
+    }
+
+    .btn-outline {
+        border: 1px solid #cbd5e1;
+        color: #475569;
+    }
+
+    .btn-outline:hover {
+        background-color: #f1f5f9;
+    }
+
+    .icon {
+        margin-right: 0.5rem;
+    }
+
+    .detail-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 1.5rem;
+    }
+
+    .card {
+        background-color: white;
+        border-radius: 0.5rem;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+        margin-bottom: 1.5rem;
+        overflow: hidden;
+    }
+
+    .card-header {
+        padding: 1.25rem 1.5rem;
+        border-bottom: 1px solid #e2e8f0;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    .card-header h2 {
+        margin: 0;
+        font-size: 1.25rem;
+    }
+
+    .card-body {
+        padding: 1.5rem;
+    }
+
+    .routes-list {
+        display: flex;
+        flex-direction: column;
+        gap: 1rem;
+    }
+
+    .route-item {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 1rem;
+        background-color: #f8fafc;
+        border-radius: 0.375rem;
+    }
+
+    .route-name {
+        margin: 0 0 0.25rem 0;
+        font-size: 1.125rem;
+    }
+
+    .route-description {
+        margin: 0;
+        color: var(--muted);
+        font-size: 0.875rem;
+    }
+
+    .arrival-list {
+        display: flex;
+        flex-direction: column;
+        gap: 1rem;
+    }
+
+    .arrival-item {
+        padding: 1rem;
+        background-color: #f8fafc;
+        border-radius: 0.375rem;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    .arrival-route {
+        display: flex;
+        flex-direction: column;
+    }
+
+    .arrival-time {
+        text-align: right;
+    }
+
+    .arrival-time .time {
+        font-size: 1.125rem;
+        font-weight: 600;
+        display: block;
+    }
+
+    .arrival-time .eta {
+        color: var(--muted);
+        font-size: 0.875rem;
+    }
+
+    .bus-number {
+        color: var(--muted);
+        font-size: 0.875rem;
+    }
+
+    .no-routes, .no-arrivals {
+        text-align: center;
+        padding: 2rem 0;
+        color: var(--muted);
+    }
+
+    .sub-text {
+        font-size: 0.875rem;
+        color: #94a3b8;
+    }
+
+    .map-card {
+        height: 300px;
+    }
+
+    .map-container {
+        height: 250px;
+    }
+
+    #bus-tracker-map {
+        height: 100%;
+        width: 100%;
+        border-radius: 0.375rem;
+    }
+
+    @media (max-width: 768px) {
+        .detail-grid {
+            grid-template-columns: 1fr;
+        }
+
+        .stop-header {
+            flex-direction: column;
+        }
+
+        .stop-actions {
+            margin-top: 1rem;
+            width: 100%;
+        }
+
+        .stop-actions .btn {
+            flex: 1;
+            justify-content: center;
+        }
+
+        .arrival-item {
+            flex-direction: column;
+            align-items: flex-start;
+        }
+
+        .arrival-time {
+            margin-top: 0.5rem;
+            text-align: left;
+        }
+    }
+</style>
+
+<!-- Leaflet JS for Map -->
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Initialize the map
+    const map = L.map('bus-tracker-map').setView([51.505, -0.09], 13); // Default coordinates
+
+    // Add a tile layer (OpenStreetMap)
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        attribution: '© OpenStreetMap contributors'
+    }).addTo(map);
+
+    // Add a marker for the stop
+    const stopMarker = L.marker([51.505, -0.09]).addTo(map); // Replace with actual stop coordinates
+    stopMarker.bindPopup("<b>{{ stop.name }}</b><br>{{ stop.address }}").openPopup();
+});
+</script>
+
+{% endblock %}

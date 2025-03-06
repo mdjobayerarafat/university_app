@@ -1,0 +1,385 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Marker Detail - UniHub</title>
+    <style>
+        :root {
+            --primary: #2c3e50;
+            --secondary: #34495e;
+            --accent: #e67e22;
+            --light: #ecf0f1;
+            --dark: #2c3e50;
+            --success: #27ae60;
+            --danger: #e74c3c;
+            --warning: #f39c12;
+            --info: #3498db;
+            --muted: #95a5a6;
+        }
+
+        body {
+            background-color: #f5f7fa;
+            color: var(--dark);
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+        }
+
+        header {
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            color: white;
+            padding: 1rem;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .brand {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .logo {
+            font-size: 1.5rem;
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+        }
+
+        .logo-icon {
+            margin-right: 0.5rem;
+            font-size: 1.8rem;
+        }
+
+        .notification-bell {
+            position: relative;
+            cursor: pointer;
+        }
+
+        .notification-badge {
+            position: absolute;
+            top: -8px;
+            right: -8px;
+            background-color: var(--accent);
+            color: white;
+            border-radius: 50%;
+            width: 18px;
+            height: 18px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.7rem;
+        }
+
+        nav {
+            background-color: var(--primary);
+            padding: 0.8rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .nav-links {
+            display: flex;
+            list-style: none;
+            margin: 0;
+            padding: 0;
+        }
+
+        .nav-links li {
+            margin: 0 0.8rem;
+        }
+
+        .nav-links a {
+            color: white;
+            text-decoration: none;
+            font-weight: 500;
+            padding: 0.4rem 0.8rem;
+            border-radius: 4px;
+            transition: background-color 0.3s;
+            display: flex;
+            align-items: center;
+        }
+
+        .nav-links a i {
+            margin-right: 0.4rem;
+        }
+
+        .nav-links a:hover, .nav-links a.active {
+            background-color: rgba(255, 255, 255, 0.2);
+        }
+
+        .profile {
+            position: relative;
+        }
+
+        .profile:hover .profile-dropdown {
+            display: block;
+        }
+
+        .profile-dropdown {
+            display: none;
+            position: absolute;
+            top: 100%;
+            right: 0;
+            background-color: white;
+            box-shadow: 0 3px 10px rgba(0, 0, 0, 0.2);
+            border-radius: 4px;
+            min-width: 150px;
+            z-index: 100;
+        }
+
+        .profile-dropdown ul {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        .profile-dropdown li {
+            margin: 0;
+        }
+
+        .profile-dropdown a {
+            color: var(--primary);
+            padding: 0.8rem 1.2rem;
+            display: block;
+            text-decoration: none;
+            transition: background-color 0.2s;
+        }
+
+        .profile-dropdown a:hover {
+            background-color: #f5f5f5;
+            color: var(--accent);
+        }
+
+        .profile-img {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            background-color: var(--accent);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 0.8rem;
+            font-weight: bold;
+            color: white;
+        }
+
+        .marker-detail-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .marker-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+            padding: 20px;
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+
+        .marker-title {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .marker-title h1 {
+            margin: 0;
+        }
+
+        .marker-type {
+            background: var(--accent);
+            color: white;
+            padding: 5px 10px;
+            border-radius: 4px;
+            font-size: 0.9rem;
+        }
+
+        .building-link {
+            color: var(--primary);
+            text-decoration: none;
+            font-weight: bold;
+        }
+
+        .marker-content {
+            display: grid;
+            gap: 20px;
+        }
+
+        .marker-main {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+
+        .marker-image-container {
+            background: white;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+
+        .marker-image {
+            width: 100%;
+            height: 400px;
+            object-fit: cover;
+        }
+
+        .no-image {
+            height: 400px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: #f5f5f5;
+            color: #666;
+        }
+
+        .marker-info-card, .content-card {
+            background: white;
+            border-radius: 8px;
+            padding: 20px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+
+        .info-grid {
+            display: grid;
+            gap: 15px;
+            margin-top: 15px;
+        }
+
+        .info-item {
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+        }
+
+        .label {
+            color: #666;
+            font-size: 0.9rem;
+        }
+
+        .value {
+            font-size: 1.1rem;
+            font-weight: bold;
+        }
+
+        .marker-content-text {
+            margin-top: 15px;
+            line-height: 1.6;
+        }
+
+        @media (max-width: 768px) {
+            .marker-main {
+                grid-template-columns: 1fr;
+            }
+
+            .marker-image {
+                height: 300px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="brand">
+            <div class="logo">
+                <span class="logo-icon">📍</span>
+                UniHub Marker Detail
+            </div>
+            <div class="notification-bell">
+                <a href="{% url 'notifications:list' %}" style="text-decoration: none; color: inherit;">
+                    <span>🔔</span>
+                    {% if unread_notifications_count %}
+                        <div class="notification-badge">{{ unread_notifications_count }}</div>
+                    {% endif %}
+                </a>
+            </div>
+        </div>
+    </header>
+
+    <nav>
+        <ul class="nav-links">
+            <li><a href="{% url 'dashboard' %}">Home</a></li>
+            <li><a href="{% url 'navigation:building_list' %}"><i>🏛️</i> Buildings</a></li>
+            <li><a href="{% url 'navigation:room_list' %}"><i>🚪</i> Rooms</a></li>
+            <li><a href="{% url 'navigation:marker_list' %}"><i>📍</i> AR Markers</a></li>
+            <li><a href="{% url 'navigation:nearby_locations' %}"><i>📍</i> Nearby</a></li>
+        </ul>
+
+        <div class="profile">
+            <div class="profile-img">{{ request.user.first_name|first }}{{ request.user.last_name|first }}</div>
+            <span>{{ request.user.username }}</span>
+            <div class="profile-dropdown">
+                <ul>
+                    <li><a href="{% url 'profile' %}">My Profile</a></li>
+                    <li><a href="{% url 'logout' %}">Logout</a></li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <div class="marker-detail-container">
+        <div class="marker-header">
+            <div class="marker-title">
+                <h1>{{ marker.name }}</h1>
+                <span class="marker-type">{{ marker.marker_type }}</span>
+            </div>
+            {% if marker.building %}
+                <a href="{% url 'navigation:building_detail' marker.building.pk %}" class="building-link">
+                    {{ marker.building.name }}
+                </a>
+            {% endif %}
+        </div>
+
+        <div class="marker-content">
+            <div class="marker-main">
+                <div class="marker-image-container">
+                    {% if marker.image %}
+                        <img src="{{ marker.image.url }}" alt="{{ marker.name }}" class="marker-image">
+                    {% else %}
+                        <div class="no-image">
+                            <span>No image available</span>
+                        </div>
+                    {% endif %}
+                </div>
+
+                <div class="marker-info-card">
+                    <h2>Marker Information</h2>
+                    <div class="info-grid">
+                        <div class="info-item">
+                            <span class="label">Type</span>
+                            <span class="value">{{ marker.marker_type }}</span>
+                        </div>
+                        {% if marker.building %}
+                            <div class="info-item">
+                                <span class="label">Building</span>
+                                <span class="value">{{ marker.building.name }}</span>
+                            </div>
+                        {% endif %}
+                        {% if marker.distance %}
+                            <div class="info-item">
+                                <span class="label">Distance</span>
+                                <span class="value">{{ marker.distance.km|floatformat:2 }} km</span>
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+
+            <div class="content-card">
+                <h2>Content</h2>
+                <div class="marker-content-text">
+                    {{ marker.content|linebreaks }}
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

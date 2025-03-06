@@ -1,0 +1,912 @@
+
+{% block content %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Faculty Dashboard - UniConnect</title>
+    <style>
+       :root {
+            --primary: #2c3e50;
+            --secondary: #34495e;
+            --accent: #e67e22;
+            --light: #ecf0f1;
+            --dark: #2c3e50;
+            --success: #27ae60;
+            --danger: #e74c3c;
+            --warning: #f39c12;
+            --info: #3498db;
+            --muted: #95a5a6;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background-color: #f5f7fa;
+            color: var(--dark);
+        }
+
+        header {
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            color: white;
+            padding: 1rem;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .brand {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .logo {
+            font-size: 1.5rem;
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+        }
+
+        .logo-icon {
+            margin-right: 0.5rem;
+            font-size: 1.8rem;
+        }
+
+        .notification-bell {
+            position: relative;
+            cursor: pointer;
+        }
+
+        .notification-badge {
+            position: absolute;
+            top: -8px;
+            right: -8px;
+            background-color: var(--accent);
+            color: white;
+            border-radius: 50%;
+            width: 18px;
+            height: 18px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.7rem;
+        }
+
+        nav {
+            background-color: var(--primary);
+            padding: 0.8rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .nav-links {
+            display: flex;
+            list-style: none;
+        }
+
+        .nav-links li {
+            margin: 0 0.8rem;
+        }
+
+        .nav-links a {
+            color: white;
+            text-decoration: none;
+            font-weight: 500;
+            padding: 0.4rem 0.8rem;
+            border-radius: 4px;
+            transition: background-color 0.3s;
+            display: flex;
+            align-items: center;
+        }
+
+        .nav-links a i {
+            margin-right: 0.4rem;
+        }
+
+        .nav-links a:hover, .nav-links a.active {
+            background-color: rgba(255, 255, 255, 0.2);
+        }
+
+        .profile {
+            display: flex;
+            align-items: center;
+            color: white;
+            cursor: pointer;
+        }
+
+        .profile-img {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            background-color: var(--accent);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 0.8rem;
+            font-weight: bold;
+        }
+
+        main {
+            padding: 1.5rem;
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .breadcrumbs {
+            margin-bottom: 1.5rem;
+            display: flex;
+            align-items: center;
+            color: var(--muted);
+            font-size: 0.9rem;
+        }
+
+        .breadcrumbs a {
+            color: var(--primary);
+            text-decoration: none;
+        }
+
+        .breadcrumbs span {
+            margin: 0 0.5rem;
+        }
+
+        .page-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+        }
+
+        .page-title {
+            font-size: 1.8rem;
+            color: var(--primary);
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: 0.8rem;
+        }
+
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: 1fr 2fr;
+            gap: 1.5rem;
+        }
+
+        .card {
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+            border-bottom: 1px solid #eee;
+            padding-bottom: 0.8rem;
+        }
+
+        h2 {
+            color: var(--primary);
+            font-size: 1.3rem;
+            display: flex;
+            align-items: center;
+        }
+
+        h2 i {
+            margin-right: 0.5rem;
+            color: var(--accent);
+        }
+
+        .card-action {
+            color: var(--info);
+            cursor: pointer;
+            font-size: 0.9rem;
+        }
+
+        .stat-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 1rem;
+        }
+
+        .stat-card {
+            padding: 1.2rem;
+            border-radius: 8px;
+            display: flex;
+            flex-direction: column;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+            border-left: 4px solid var(--primary);
+            transition: transform 0.3s;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .stat-card.primary { border-left-color: var(--primary); }
+        .stat-card.success { border-left-color: var(--success); }
+        .stat-card.warning { border-left-color: var(--warning); }
+        .stat-card.info { border-left-color: var(--info); }
+        .stat-card.danger { border-left-color: var(--danger); }
+
+        .stat-title {
+            font-size: 0.9rem;
+            color: var(--muted);
+            margin-bottom: 0.5rem;
+        }
+
+        .stat-value {
+            font-size: 1.8rem;
+            font-weight: bold;
+            color: var(--dark);
+        }
+
+        .stat-footer {
+            display: flex;
+            align-items: center;
+            margin-top: 0.5rem;
+            font-size: 0.8rem;
+        }
+
+        .stat-change {
+            margin-right: 0.5rem;
+        }
+
+        .change-up {
+            color: var(--success);
+        }
+
+        .change-down {
+            color: var(--danger);
+        }
+
+        .stat-period {
+            color: var(--muted);
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 1rem;
+        }
+
+        th, td {
+            padding: 0.8rem;
+            text-align: left;
+            border-bottom: 1px solid #eee;
+        }
+
+        tr:hover {
+            background-color: #f9f9f9;
+        }
+
+        th {
+            background-color: #f5f5f5;
+            font-weight: 600;
+            color: var(--secondary);
+        }
+
+        .badge {
+            display: inline-block;
+            padding: 0.25rem 0.5rem;
+            border-radius: 4px;
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+
+        .badge-primary { background-color: var(--primary); color: white; }
+        .badge-success { background-color: var(--success); color: white; }
+        .badge-warning { background-color: var(--warning); color: white; }
+        .badge-danger { background-color: var(--danger); color: white; }
+        .badge-info { background-color: var(--info); color: white; }
+
+        .btn {
+            padding: 0.5rem 1rem;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: 500;
+            transition: background-color 0.3s, transform 0.2s;
+            display: flex;
+            align-items: center;
+        }
+
+        .btn i {
+            margin-right: 0.4rem;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+        }
+
+        .btn-primary {
+            background-color: var(--primary);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background-color: #243442;
+        }
+
+        .btn-secondary {
+            background-color: var(--secondary);
+            color: white;
+        }
+
+        .btn-accent {
+            background-color: var(--accent);
+            color: white;
+        }
+
+        .btn-accent:hover {
+            background-color: #d35400;
+        }
+
+        .btn-success {
+            background-color: var(--success);
+            color: white;
+        }
+
+        .btn-danger {
+            background-color: var(--danger);
+            color: white;
+        }
+
+        .progress-container {
+            width: 100%;
+            background-color: #eee;
+            border-radius: 4px;
+            height: 8px;
+            margin-top: 0.5rem;
+        }
+
+        .progress-bar {
+            height: 100%;
+            border-radius: 4px;
+            background-color: var(--primary);
+        }
+
+        .progress-primary { background-color: var(--primary); }
+        .progress-success { background-color: var(--success); }
+        .progress-warning { background-color: var(--warning); }
+        .progress-danger { background-color: var(--danger); }
+
+        .faculty-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 1.5rem;
+            margin-top: 1rem;
+        }
+
+        .faculty-card {
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+            padding: 1.5rem;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+            transition: transform 0.3s;
+        }
+
+        .faculty-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .faculty-avatar {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            background-color: var(--light);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 1rem;
+            font-size: 2rem;
+            font-weight: bold;
+            color: var(--primary);
+        }
+
+        .faculty-name {
+            font-weight: 600;
+            font-size: 1.1rem;
+            margin-bottom: 0.3rem;
+        }
+
+        .faculty-title {
+            color: var(--muted);
+            font-size: 0.9rem;
+            margin-bottom: 0.8rem;
+        }
+
+        .faculty-stats {
+            width: 100%;
+            display: flex;
+            justify-content: space-around;
+            margin-top: 0.8rem;
+            padding-top: 0.8rem;
+            border-top: 1px solid #eee;
+        }
+
+        .faculty-stat {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .stat-label {
+            font-size: 0.8rem;
+            color: var(--muted);
+        }
+
+        .stat-number {
+            font-weight: 600;
+            font-size: 1.1rem;
+        }
+
+        .chart-container {
+            height: 250px;
+            margin-top: 1rem;
+        }
+
+        .chart-legend {
+            display: flex;
+            justify-content: center;
+            gap: 1.5rem;
+            margin-top: 1rem;
+        }
+
+        .legend-item {
+            display: flex;
+            align-items: center;
+            font-size: 0.9rem;
+        }
+
+        .legend-color {
+            width: 12px;
+            height: 12px;
+            border-radius: 2px;
+            margin-right: 0.4rem;
+        }
+
+        .color-primary { background-color: var(--primary); }
+        .color-success { background-color: var(--success); }
+        .color-warning { background-color: var(--warning); }
+        .color-info { background-color: var(--info); }
+
+        .tab-container {
+            margin-bottom: 1rem;
+        }
+
+        .tabs {
+            display: flex;
+            background-color: #f5f5f5;
+            border-radius: 8px;
+            overflow: hidden;
+        }
+
+        .tab {
+            padding: 0.8rem 1.5rem;
+            cursor: pointer;
+            flex: 1;
+            text-align: center;
+            transition: background-color 0.3s;
+        }
+
+        .tab.active {
+            background-color: var(--primary);
+            color: white;
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        .search-box {
+            display: flex;
+            margin-bottom: 1rem;
+        }
+
+        .search-input {
+            flex: 1;
+            padding: 0.8rem;
+            border: 1px solid #ddd;
+            border-radius: 4px 0 0 4px;
+            font-size: 0.9rem;
+        }
+
+        .search-btn {
+            padding: 0.8rem 1.2rem;
+            background-color: var(--primary);
+            color: white;
+            border: none;
+            border-radius: 0 4px 4px 0;
+            cursor: pointer;
+        }
+
+        .calendar-grid {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            gap: 0.5rem;
+            margin-top: 1rem;
+        }
+
+        .calendar-header {
+            text-align: center;
+            padding: 0.5rem;
+            font-weight: 600;
+            color: var(--muted);
+        }
+
+        .calendar-day {
+            min-height: 100px;
+            padding: 0.5rem;
+            border: 1px solid #eee;
+            border-radius: 4px;
+            position: relative;
+        }
+
+        .day-number {
+            position: absolute;
+            top: 0.3rem;
+            right: 0.5rem;
+            font-size: 0.8rem;
+            color: var(--muted);
+        }
+
+        .event {
+            background: #f5f7fa;
+            border-left: 3px solid var(--primary);
+            padding: 0.3rem;
+            margin-bottom: 0.3rem;
+            border-radius: 2px;
+            font-size: 0.8rem;
+            cursor: pointer;
+        }
+
+        .event-time {
+            font-size: 0.7rem;
+            color: var(--muted);
+        }
+
+        .event-primary { border-left-color: var(--primary); }
+        .event-success { border-left-color: var(--success); }
+        .event-warning { border-left-color: var(--warning); }
+        .event-info { border-left-color: var(--info); }
+
+        .performance-indicator {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            display: inline-block;
+            margin-right: 0.5rem;
+        }
+
+        .indicator-excellent { background-color: var(--success); }
+        .indicator-good { background-color: var(--info); }
+        .indicator-average { background-color: var(--warning); }
+        .indicator-below-average { background-color: var(--danger); }
+
+        @media (max-width: 992px) {
+            .dashboard-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .faculty-grid {
+                grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+            }
+        }
+
+        @media (max-width: 768px) {
+            .stat-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .nav-links {
+                display: none;
+            }
+
+            .action-buttons {
+                flex-direction: column;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="brand">
+            <div class="logo">
+                <span class="logo-icon">🏛️</span>
+                UniConnect
+            </div>
+            <div class="notification-bell">
+                <span>🔔</span>
+                <div class="notification-badge">5</div>
+            </div>
+        </div>
+    </header>
+
+    <nav>
+        <ul class="nav-links">
+            <li><a href="{% url 'academics:faculty_dashboard' %}" class="active"><i>📊</i> Dashboard</a></li>
+            <li><a href="{% url 'academics:faculty_class_list' %}"><i>👨‍🏫</i> Classes</a></li>
+            <li><a href="{% url 'academics:faculty_list' %}"><i>👨‍🏫</i> Faculty</a></li>
+            <li><a href="{% url 'academics:course_list' %}"><i>📚</i> Courses</a></li>
+           <li><a href="{% url 'academics:faculty_students' %}"><i class="fas fa-users"></i> View Students</a></li>
+            <li><a href="#"><i>📝</i> Reports</a></li>
+           <li><a href="{% url 'admin:index' %}"><i>⚙️</i>Settings</a></li>
+        </ul>
+
+        <div class="profile">
+            <div class="profile-img">{{ faculty.user.first_name|first }}{{ faculty.user.last_name|first }}</div>
+            <span>{{ faculty.title }} • {{ faculty.department.name }}</span>
+        </div>
+    </nav>
+
+    <main>
+        <div class="breadcrumbs">
+            <a href="{% url 'academics:faculty_dashboard' %}">Home</a> <span>›</span> Dashboard
+        </div>
+
+        <div class="page-header">
+            <h1 class="page-title">Faculty Dashboard</h1>
+
+            <div class="action-buttons">
+                <button class="btn btn-primary"><i>📊</i> Generate Reports</button>
+                <button class="btn btn-accent"><i>📅</i> Schedule Meeting</button>
+            </div>
+        </div>
+
+        <div class="dashboard-grid">
+            <div class="sidebar">
+                <div class="card">
+                    <div class="card-header">
+                        <h2><i>📊</i> Department Overview</h2>
+                        <span class="card-action">Academic Year 2024-25</span>
+                    </div>
+
+                    <div class="stat-grid">
+                        <div class="stat-card primary">
+                            <div class="stat-title">Faculty Members</div>
+                            <div class="stat-value">{{ department_data.faculty_count }}</div>
+                            <div class="stat-footer">
+                                <span class="stat-change change-up">↑ 3</span>
+                                <span class="stat-period">from last year</span>
+                            </div>
+                        </div>
+                        <div class="stat-card success">
+                            <div class="stat-title">Active Courses</div>
+                            <div class="stat-value">{{ department_data.course_count }}</div>
+                            <div class="stat-footer">
+                                <span class="stat-change change-up">↑ 5</span>
+                                <span class="stat-period">from last year</span>
+                            </div>
+                        </div>
+                        <div class="stat-card info">
+                            <div class="stat-title">Enrolled Students</div>
+                            <div class="stat-value">1,250</div>
+                            <div class="stat-footer">
+                                <span class="stat-change change-up">↑ 120</span>
+                                <span class="stat-period">from last year</span>
+                            </div>
+                        </div>
+                        <div class="stat-card warning">
+                            <div class="stat-title">Research Projects</div>
+                            <div class="stat-value">23</div>
+                            <div class="stat-footer">
+                                <span class="stat-change change-up">↑ 8</span>
+                                <span class="stat-period">from last year</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="card-header">
+                        <h2><i>📝</i> Department Metrics</h2>
+                        <span class="card-action">View Details</span>
+                    </div>
+
+                    <table>
+                        <tr>
+                            <td>Student-Faculty Ratio</td>
+                            <td align="right">
+                                <strong>15:1</strong>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>Average Class Size</td>
+                            <td align="right">
+                                <strong>26 students</strong>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>Graduate Rate</td>
+                            <td align="right">
+                                <strong>94.2%</strong>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>Research Publications</td>
+                            <td align="right">
+                                <strong>78 (this year)</strong>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>Budget Utilization</td>
+                            <td align="right">
+                                <strong>83%</strong>
+                                <div class="progress-container">
+                                    <div class="progress-bar progress-success" style="width: 83%"></div>
+                                </div>
+                            </td>
+                        </tr>
+                    </table>
+                </div>
+
+                <div class="card">
+                    <div class="card-header">
+                        <h2><i>🚨</i> Critical Alerts</h2>
+                    </div>
+
+                    <table>
+                        <tr>
+                            <td>
+                                <strong>Course Capacity Alert</strong><br>
+                                <small>3 courses over 90% capacity</small>
+                            </td>
+                            <td align="right">
+                                <span class="badge badge-warning">Review</span>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <strong>Faculty Workload</strong><br>
+                                <small>2 faculty members over allocation</small>
+                            </td>
+                            <td align="right">
+                                <span class="badge badge-danger">Urgent</span>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <strong>Budget Review</strong><br>
+                                <small>Q2 budget review pending</small>
+                            </td>
+                            <td align="right">
+                                <span class="badge badge-primary">Due: Mar 15</span>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <strong>Curriculum Committee</strong><br>
+                                <small>Meeting scheduled tomorrow</small>
+                            </td>
+                            <td align="right">
+                                <span class="badge badge-info">Reminder</span>
+                            </td>
+                        </tr>
+                    </table>
+                </div>
+            </div>
+
+            <div class="main-content">
+                <div class="card">
+                    <div class="card-header">
+                        <h2><i>👨‍🏫</i> My Classes</h2>
+                        <button class="btn btn-primary">Add New Class</button>
+                    </div>
+
+                    <div class="search-box">
+                        <input type="text" class="search-input" placeholder="Search classes by name or code...">
+                        <button class="search-btn">🔍</button>
+                    </div>
+
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Course</th>
+                                <th>Section</th>
+                                <th>Schedule</th>
+                                <th>Enrollment</th>
+                                <th>Action</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for class in classes %}
+                            <tr>
+                                <td>
+                                    <strong>{{ class.course.code }}</strong><br>
+                                    {{ class.course.name }}
+                                </td>
+                                <td>{{ class.section_number }}</td>
+                                <td>
+                                    {% for schedule in class.schedules.all %}
+                                    {{ schedule.day }} {{ schedule.start_time }} - {{ schedule.end_time }}<br>
+                                    {% endfor %}
+                                </td>
+                                <td>
+                                    {{ class.enrolled }}/{{ class.capacity }}
+                                    <div class="progress-container">
+                                        <div class="progress-bar progress-primary" style="width: {% widthratio class.enrolled class.capacity 100 %}%"></div>
+                                    </div>
+                                </td>
+                                <td>
+                                    <a href="{% url 'academics:faculty_class_detail' class.pk %}" class="btn btn-secondary">View</a>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+
+                <div class="card">
+                    <div class="card-header">
+                        <h2><i>📚</i> Qualified Courses</h2>
+                    </div>
+
+                    <div class="search-box">
+                        <input type="text" class="search-input" placeholder="Search courses by name or code...">
+                        <button class="search-btn">🔍</button>
+                    </div>
+
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Course Code</th>
+                                <th>Course Name</th>
+                                <th>Department</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for course in qualified_courses %}
+                            <tr>
+                                <td>{{ course.code }}</td>
+                                <td>{{ course.name }}</td>
+                                <td>{{ course.department.name }}</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        // JavaScript for tab functionality
+        document.addEventListener('DOMContentLoaded', function() {
+            const tabs = document.querySelectorAll('.tab');
+
+            tabs.forEach(tab => {
+                tab.addEventListener('click', function() {
+                    // Remove active class from all tabs
+                    tabs.forEach(t => t.classList.remove('active'));
+
+                    // Add active class to clicked tab
+                    this.classList.add('active'));
+                });
+            });
+        });
+    </script>
+</body>
+</html>
+{% endblock %}

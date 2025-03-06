@@ -1,0 +1,445 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Events - UniHub</title>
+    <style>
+        :root {
+            --primary: #2c3e50;
+            --secondary: #34495e;
+            --accent: #e67e22;
+            --light: #ecf0f1;
+            --dark: #2c3e50;
+            --success: #27ae60;
+            --danger: #e74c3c;
+            --warning: #f39c12;
+            --info: #3498db;
+            --muted: #95a5a6;
+        }
+
+        body {
+            background-color: #f5f7fa;
+            color: var(--dark);
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+        }
+
+        header {
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            color: white;
+            padding: 1rem;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .brand {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .logo {
+            font-size: 1.5rem;
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+        }
+
+        .logo-icon {
+            margin-right: 0.5rem;
+            font-size: 1.8rem;
+        }
+
+        .notification-bell {
+            position: relative;
+            cursor: pointer;
+        }
+
+        .notification-badge {
+            position: absolute;
+            top: -8px;
+            right: -8px;
+            background-color: var(--accent);
+            color: white;
+            border-radius: 50%;
+            width: 18px;
+            height: 18px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.7rem;
+        }
+
+        nav {
+            background-color: var(--primary);
+            padding: 0.8rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .nav-links {
+            display: flex;
+            list-style: none;
+            margin: 0;
+            padding: 0;
+        }
+
+        .nav-links li {
+            margin: 0 0.8rem;
+        }
+
+        .nav-links a {
+            color: white;
+            text-decoration: none;
+            font-weight: 500;
+            padding: 0.4rem 0.8rem;
+            border-radius: 4px;
+            transition: background-color 0.3s;
+            display: flex;
+            align-items: center;
+        }
+
+        .nav-links a i {
+            margin-right: 0.4rem;
+        }
+
+        .nav-links a:hover, .nav-links a.active {
+            background-color: rgba(255, 255, 255, 0.2);
+        }
+
+        .profile {
+            position: relative;
+        }
+
+        .profile:hover .profile-dropdown {
+            display: block;
+        }
+
+        .profile-dropdown {
+            display: none;
+            position: absolute;
+            top: 100%;
+            right: 0;
+            background-color: white;
+            box-shadow: 0 3px 10px rgba(0, 0, 0, 0.2);
+            border-radius: 4px;
+            min-width: 150px;
+            z-index: 100;
+        }
+
+        .profile-dropdown ul {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        .profile-dropdown li {
+            margin: 0;
+        }
+
+        .profile-dropdown a {
+            color: var(--primary);
+            padding: 0.8rem 1.2rem;
+            display: block;
+            text-decoration: none;
+            transition: background-color 0.2s;
+        }
+
+        .profile-dropdown a:hover {
+            background-color: #f5f5f5;
+            color: var(--accent);
+        }
+
+        .profile-img {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            background-color: var(--accent);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 0.8rem;
+            font-weight: bold;
+            color: white;
+        }
+
+        .my-events-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 1.5rem;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+
+        .header h1 {
+            color: var(--primary);
+            margin-bottom: 0.5rem;
+        }
+
+        .subtitle {
+            color: var(--muted);
+            font-size: 0.9rem;
+        }
+
+        .events-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .event-card {
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+            overflow: hidden;
+            transition: transform 0.3s;
+        }
+
+        .event-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .event-header {
+            height: 160px;
+            background: var(--light);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+        }
+
+        .event-image {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .event-image-placeholder {
+            font-size: 3rem;
+        }
+
+        .event-body {
+            padding: 1.5rem;
+        }
+
+        .event-title {
+            font-size: 1.3rem;
+            color: var(--primary);
+            margin-bottom: 0.5rem;
+        }
+
+        .event-info {
+            color: var(--muted);
+            font-size: 0.9rem;
+            margin-bottom: 1rem;
+        }
+
+        .event-info p {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .event-datetime, .event-location, .event-organizer {
+            color: var(--muted);
+        }
+
+        .event-actions {
+            margin-top: 1rem;
+        }
+
+        .btn {
+            padding: 0.5rem 1rem;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: 500;
+            transition: background-color 0.3s;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .btn-primary {
+            background-color: var(--primary);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background-color: #243442;
+        }
+
+        .no-events {
+            text-align: center;
+            padding: 2rem;
+            color: var(--muted);
+        }
+
+        .no-events-icon {
+            font-size: 4rem;
+            margin-bottom: 1rem;
+        }
+
+        .no-events h2 {
+            font-size: 1.5rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .pagination {
+            display: flex;
+            justify-content: center;
+            gap: 0.5rem;
+            margin-top: 2rem;
+        }
+
+        .page-link {
+            padding: 0.5rem 1rem;
+            border: 1px solid var(--light);
+            border-radius: 4px;
+            color: var(--primary);
+            text-decoration: none;
+            transition: background-color 0.3s;
+        }
+
+        .page-link.active {
+            background-color: var(--primary);
+            color: white;
+        }
+
+        @media (max-width: 768px) {
+            .events-list {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="brand">
+            <div class="logo">
+                <span class="logo-icon">🎉</span>
+                UniHub Events
+            </div>
+             <div class="notification-bell">
+            <a href="{% url 'notifications:list' %}" style="text-decoration: none; color: inherit;">
+                <span>🔔</span>
+                {% if unread_notifications_count %}
+                    <div class="notification-badge">{{ unread_notifications_count }}</div>
+                {% endif %}
+            </a>
+        </div>
+        </div>
+    </header>
+
+    <nav>
+        <ul class="nav-links">
+            <li><a href="{% url 'dashboard' %}">Home</a></li>
+             <li><a href="{% url 'transportation:route_list' %}"><i>🚌</i> Transport</a></li>
+            <li><a href="{% url 'events:club_list' %}"><i>🏛️</i> Clubs</a></li>
+            <li><a href="{% url 'events:event_list' %}"><i>🎉</i> Events</a></li>
+            <li><a href="{% url 'events:my_events' %}" class="active"><i>📅</i> My Events</a></li>
+        </ul>
+
+        <div class="profile">
+            <div class="profile-img">{{ request.user.first_name|first }}{{ request.user.last_name|first }}</div>
+            <span>{{ request.user.username }}</span>
+            <div class="profile-dropdown">
+                <ul>
+                    <li><a href="{% url 'profile' %}">My Profile</a></li>
+                    <li><a href="{% url 'logout' %}">Logout</a></li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <div class="my-events-container">
+        <div class="header">
+            <h1>My Events</h1>
+            <p class="subtitle">Events you're attending</p>
+        </div>
+
+        {% if events %}
+            <div class="events-list">
+                {% for event in events %}
+                    <div class="event-card">
+                        <div class="event-header">
+                            {% if event.image %}
+                                <img src="{{ event.image.url }}" alt="{{ event.title }}" class="event-image">
+                            {% else %}
+                                <div class="event-image-placeholder">
+                                    <span>📅</span>
+                                </div>
+                            {% endif %}
+                        </div>
+
+                        <div class="event-body">
+                            <h3 class="event-title">{{ event.title }}</h3>
+
+                            <div class="event-info">
+                                <p class="event-datetime">
+                                    <i class="far fa-calendar"></i>
+                                    {{ event.start_datetime|date:"F j, Y" }}
+                                    <span class="event-time">
+                                        <i class="far fa-clock"></i>
+                                        {{ event.start_datetime|time:"g:i A" }}
+                                    </span>
+                                </p>
+                                <p class="event-location">
+                                    <i class="fas fa-map-marker-alt"></i>
+                                    {{ event.location }}
+                                </p>
+                                <p class="event-organizer">
+                                    <i class="fas fa-users"></i>
+                                    Organized by {{ event.organizer.name }}
+                                </p>
+                            </div>
+
+                            <div class="event-actions">
+                                <a href="{% url 'events:event_detail' event.pk %}" class="btn btn-primary">View Details</a>
+                            </div>
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+
+            {% if is_paginated %}
+                <div class="pagination">
+                    {% if page_obj.has_previous %}
+                        <a href="?page=1" class="page-link">&laquo; First</a>
+                        <a href="?page={{ page_obj.previous_page_number }}" class="page-link">Previous</a>
+                    {% endif %}
+
+                    {% for num in page_obj.paginator.page_range %}
+                        {% if page_obj.number == num %}
+                            <span class="page-link active">{{ num }}</span>
+                        {% elif num > page_obj.number|add:'-3' and num < page_obj.number|add:'3' %}
+                            <a href="?page={{ num }}" class="page-link">{{ num }}</a>
+                        {% endif %}
+                    {% endfor %}
+
+                    {% if page_obj.has_next %}
+                        <a href="?page={{ page_obj.next_page_number }}" class="page-link">Next</a>
+                        <a href="?page={{ page_obj.paginator.num_pages }}" class="page-link">Last &raquo;</a>
+                    {% endif %}
+                </div>
+            {% endif %}
+        {% else %}
+            <div class="no-events">
+                <div class="no-events-icon">📅</div>
+                <h2>No Upcoming Events</h2>
+                <p>You haven't RSVP'd to any upcoming events yet.</p>
+                <a href="{% url 'events:event_list' %}" class="btn btn-primary">Browse Events</a>
+            </div>
+        {% endif %}
+    </div>
+</body>
+</html>

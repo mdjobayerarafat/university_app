@@ -1,0 +1,612 @@
+{% block title %}{{ route.name }} - Bus Route Details{% endblock %}
+
+{% block content %}
+<!-- Navigation Bar -->
+<header>
+    <div class="brand">
+        <div class="logo">
+            <span class="logo-icon">🚌</span>
+            UniHub Transport
+        </div>
+         <div class="notification-bell">
+            <a href="{% url 'notifications:list' %}" style="text-decoration: none; color: inherit;">
+                <span>🔔</span>
+                {% if unread_notifications_count %}
+                    <div class="notification-badge">{{ unread_notifications_count }}</div>
+                {% endif %}
+            </a>
+        </div>
+    </div>
+</header>
+
+<nav>
+    <ul class="nav-links">
+     <li><a href="{% url 'dashboard' %}">Home</a></li>
+        <li><a href="{% url 'transportation:route_list' %}"><i>🚌</i> Bus Routes</a></li>
+
+        <li><a href="{% url 'transportation:alert_list' %}"><i>⚠️</i> Bus Alert</a></li>
+    </ul>
+
+    <div class="profile">
+        <div class="profile-img">{{ request.user.first_name|first }}{{ request.user.last_name|first }}</div>
+        <span>{{ request.user.username }}</span>
+        <div class="profile-dropdown">
+            <ul>
+                <li><a href="{% url 'profile' %}">My Profile</a></li>
+                <li><a href="{% url 'logout' %}">Logout</a></li>
+            </ul>
+        </div>
+    </div>
+</nav>
+
+<!-- Main Content -->
+<div class="route-detail-container">
+    <div class="route-header" style="border-left-color: {{ route.color_code }}">
+        <div class="route-title-section">
+            <h1 class="route-name">{{ route.name }}</h1>
+            {% if route.buses.all|length > 0 %}
+                <span class="badge badge-success">Active</span>
+            {% else %}
+                <span class="badge badge-secondary">No buses</span>
+            {% endif %}
+        </div>
+        <div class="route-actions">
+            <a href="{% url 'transportation:bus_tracker' %}" class="btn btn-primary">
+                <i class="icon">🔍</i> Track Buses
+            </a>
+            <a href="{% url 'transportation:route_list' %}" class="btn btn-outline">
+                Back to Routes
+            </a>
+        </div>
+    </div>
+
+    <div class="route-description">
+        <p>{{ route.description }}</p>
+    </div>
+
+    {% if alerts %}
+    <div class="alert-section">
+        <h2>Active Alerts</h2>
+        <div class="alerts-container">
+            {% for alert in alerts %}
+            <div class="alert-card">
+                <h3 class="alert-title">{{ alert.title }}</h3>
+                <p class="alert-description">{{ alert.description }}</p>
+                <div class="alert-timeframe">
+                    <span>Valid: {{ alert.start_date|date:"M d, g:i a" }} - {{ alert.end_date|date:"M d, g:i a" }}</span>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+    {% endif %}
+
+    <div class="detail-grid">
+        <div class="left-column">
+            <div class="card">
+                <div class="card-header">
+                    <h2>Route Stops</h2>
+                    <span class="stop-count">{{ stops|length }} stops</span>
+                </div>
+                <div class="card-body">
+                    <div class="stops-timeline">
+                        {% for stop in stops %}
+                        <div class="stop-item">
+                            <div class="stop-connector">
+                                <div class="stop-dot"></div>
+                                {% if not forloop.last %}
+                                <div class="stop-line"></div>
+                                {% endif %}
+                            </div>
+                            <div class="stop-details">
+                                <h3 class="stop-name">{{ stop.name }}</h3>
+                                <p class="stop-address">{{ stop.address }}</p>
+                                <a href="{% url 'transportation:stop_detail' stop.pk %}" class="stop-link">View Stop Details</a>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="right-column">
+            <div class="card">
+                <div class="card-header">
+                    <h2>Today's Schedule</h2>
+                    <span class="schedule-info">{{ schedules.first.day_of_week }}</span>
+                </div>
+                <div class="card-body">
+                    {% if schedules %}
+                    <div class="schedule-info">
+                        {% for schedule in schedules %}
+                        <div class="schedule-item">
+                            <div class="schedule-time">
+                                <span class="time-range">{{ schedule.start_time|time:"g:i a" }} - {{ schedule.end_time|time:"g:i a" }}</span>
+                            </div>
+                            <div class="schedule-frequency">
+                                <span class="frequency">Every {{ schedule.frequency_minutes }} minutes</span>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                    {% else %}
+                    <div class="no-schedule">
+                        <p>No schedules available for today.</p>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-header">
+                    <h2>Active Buses</h2>
+                    <span class="bus-count">{{ active_buses|length }} bus(es)</span>
+                </div>
+                <div class="card-body">
+                    {% if active_buses %}
+                    <div class="bus-list">
+                        {% for bus in active_buses %}
+                        <div class="bus-item">
+                            <div class="bus-icon">🚌</div>
+                            <div class="bus-details">
+                                <span class="bus-number">Bus #{{ bus.bus_number }}</span>
+                                <span class="bus-capacity">{{ bus.capacity }} seats</span>
+                                <span class="bus-updated">Updated: {{ bus.last_updated|time:"g:i a" }}</span>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                    {% else %}
+                    <div class="no-buses">
+                        <p>No buses are currently active on this route.</p>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Updated CSS Styles -->
+<style>
+    :root {
+        --primary: #2c3e50;
+        --secondary: #34495e;
+        --accent: #e67e22;
+        --light: #ecf0f1;
+        --dark: #2c3e50;
+        --success: #27ae60;
+        --danger: #e74c3c;
+        --warning: #f39c12;
+        --info: #3498db;
+        --muted: #95a5a6;
+    }
+
+    body {
+        background-color: #f5f7fa;
+        color: var(--dark);
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        margin: 0;
+    }
+
+    header {
+        background: linear-gradient(135deg, var(--primary), var(--secondary));
+        color: white;
+        padding: 1rem;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        position: sticky;
+        top: 0;
+        z-index: 100;
+    }
+
+    .brand {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+    }
+
+    .logo {
+        font-size: 1.5rem;
+        font-weight: bold;
+        display: flex;
+        align-items: center;
+    }
+
+    .logo-icon {
+        margin-right: 0.5rem;
+        font-size: 1.8rem;
+    }
+
+    .notification-bell {
+        position: relative;
+        cursor: pointer;
+    }
+
+    .notification-badge {
+        position: absolute;
+        top: -8px;
+        right: -8px;
+        background-color: var(--accent);
+        color: white;
+        border-radius: 50%;
+        width: 18px;
+        height: 18px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 0.7rem;
+    }
+
+    nav {
+        background-color: var(--primary);
+        padding: 0.8rem;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    .nav-links {
+        display: flex;
+        list-style: none;
+        margin: 0;
+        padding: 0;
+    }
+
+    .nav-links li {
+        margin: 0 0.8rem;
+    }
+
+    .nav-links a {
+        color: white;
+        text-decoration: none;
+        font-weight: 500;
+        padding: 0.4rem 0.8rem;
+        border-radius: 4px;
+        transition: background-color 0.3s;
+        display: flex;
+        align-items: center;
+    }
+
+    .nav-links a i {
+        margin-right: 0.4rem;
+    }
+
+    .nav-links a:hover, .nav-links a.active {
+        background-color: rgba(255, 255, 255, 0.2);
+    }
+
+    .profile {
+        position: relative;
+    }
+
+    .profile:hover .profile-dropdown {
+        display: block;
+    }
+
+    .profile-dropdown {
+        display: none;
+        position: absolute;
+        top: 100%;
+        right: 0;
+        background-color: white;
+        box-shadow: 0 3px 10px rgba(0, 0, 0, 0.2);
+        border-radius: 4px;
+        min-width: 150px;
+        z-index: 100;
+    }
+
+    .profile-dropdown ul {
+        list-style: none;
+        padding: 0;
+        margin: 0;
+    }
+
+    .profile-dropdown li {
+        margin: 0;
+    }
+
+    .profile-dropdown a {
+        color: var(--primary);
+        padding: 0.8rem 1.2rem;
+        display: block;
+        text-decoration: none;
+        transition: background-color 0.2s;
+    }
+
+    .profile-dropdown a:hover {
+        background-color: #f5f5f5;
+        color: var(--accent);
+    }
+
+    .profile-img {
+        width: 36px;
+        height: 36px;
+        border-radius: 50%;
+        background-color: var(--accent);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin-right: 0.8rem;
+        font-weight: bold;
+        color: white;
+    }
+
+    .route-detail-container {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 2rem;
+    }
+
+    .route-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 1.5rem;
+        background-color: white;
+        border-radius: 0.5rem;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+        margin-bottom: 1.5rem;
+        border-left: 6px solid var(--primary);
+    }
+
+    .route-name {
+        font-size: 1.75rem;
+        font-weight: 700;
+        margin: 0 0 0.25rem 0;
+    }
+
+    .route-actions {
+        display: flex;
+        gap: 0.75rem;
+    }
+
+    .badge {
+        display: inline-block;
+        padding: 0.25rem 0.5rem;
+        font-size: 0.75rem;
+        font-weight: 500;
+        border-radius: 9999px;
+        margin-left: 1rem;
+    }
+
+    .badge-success {
+        background-color: #ecfdf5;
+        color: #059669;
+    }
+
+    .badge-secondary {
+        background-color: #f1f5f9;
+        color: #64748b;
+    }
+
+    .btn {
+        display: inline-flex;
+        align-items: center;
+        padding: 0.625rem 1rem;
+        border-radius: 0.375rem;
+        font-weight: 500;
+        text-decoration: none;
+        transition: all 0.2s;
+    }
+
+    .btn-primary {
+        background-color: var(--primary);
+        color: white;
+    }
+
+    .btn-primary:hover {
+        background-color: #243442;
+    }
+
+    .btn-outline {
+        border: 1px solid #cbd5e1;
+        color: #475569;
+    }
+
+    .btn-outline:hover {
+        background-color: #f1f5f9;
+    }
+
+    .icon {
+        margin-right: 0.5rem;
+    }
+
+    .route-description {
+        background-color: white;
+        border-radius: 0.5rem;
+        padding: 1.5rem;
+        margin-bottom: 1.5rem;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+    }
+
+    .alert-section {
+        margin-bottom: 1.5rem;
+    }
+
+    .alert-section h2 {
+        margin-bottom: 1rem;
+    }
+
+    .alerts-container {
+        background-color: #fff7ed;
+        border-radius: 0.5rem;
+        padding: 1rem;
+    }
+
+    .alert-card {
+        padding: 1rem;
+        border-left: 4px solid #f97316;
+        margin-bottom: 0.5rem;
+    }
+
+    .alert-title {
+        color: #9a3412;
+        margin: 0 0 0.5rem 0;
+        font-size: 1.125rem;
+    }
+
+    .alert-description {
+        color: #431407;
+        margin-bottom: 0.5rem;
+    }
+
+    .alert-timeframe {
+        color: #7c2d12;
+        font-size: 0.875rem;
+    }
+
+    .detail-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 1.5rem;
+    }
+
+    .card {
+        background-color: white;
+        border-radius: 0.5rem;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+        margin-bottom: 1.5rem;
+        overflow: hidden;
+    }
+
+    .card-header {
+        padding: 1.25rem 1.5rem;
+        border-bottom: 1px solid #e2e8f0;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    .card-header h2 {
+        margin: 0;
+        font-size: 1.25rem;
+    }
+
+    .card-body {
+        padding: 1.5rem;
+    }
+
+    .stops-timeline {
+        position: relative;
+    }
+
+    .stop-item {
+        display: flex;
+        margin-bottom: 1.5rem;
+    }
+
+    .stop-connector {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        margin-right: 1rem;
+    }
+
+    .stop-dot {
+        width: 1rem;
+        height: 1rem;
+        border-radius: 50%;
+        background-color: var(--primary);
+    }
+
+    .stop-line {
+        width: 2px;
+        flex-grow: 1;
+        background-color: var(--primary);
+        margin: 4px 0;
+    }
+
+    .stop-details {
+        flex: 1;
+    }
+
+    .stop-name {
+        margin: 0 0 0.25rem 0;
+        font-size: 1rem;
+    }
+
+    .stop-address {
+        color: #64748b;
+        margin: 0 0 0.5rem 0;
+        font-size: 0.875rem;
+    }
+
+    .stop-link {
+        color: var(--primary);
+        font-size: 0.875rem;
+        text-decoration: none;
+    }
+
+    .stop-link:hover {
+        text-decoration: underline;
+    }
+
+    .schedule-item {
+        display: flex;
+        justify-content: space-between;
+        padding: 0.75rem 0;
+        border-bottom: 1px solid #e2e8f0;
+    }
+
+    .schedule-item:last-child {
+        border-bottom: none;
+    }
+
+    .bus-item {
+        display: flex;
+        padding: 0.75rem 0;
+        border-bottom: 1px solid #e2e8f0;
+    }
+
+    .bus-item:last-child {
+        border-bottom: none;
+    }
+
+    .bus-icon {
+        margin-right: 1rem;
+        font-size: 1.25rem;
+    }
+
+    .bus-details {
+        display: flex;
+        flex-direction: column;
+    }
+
+    .bus-number {
+        font-weight: 500;
+    }
+
+    .bus-capacity, .bus-updated {
+        color: #64748b;
+        font-size: 0.875rem;
+    }
+
+    .no-schedule, .no-buses {
+        color: #64748b;
+        text-align: center;
+        padding: 1rem 0;
+    }
+
+    @media (max-width: 768px) {
+        .detail-grid {
+            grid-template-columns: 1fr;
+        }
+
+        .route-header {
+            flex-direction: column;
+            align-items: flex-start;
+        }
+
+        .route-actions {
+            margin-top: 1rem;
+            width: 100%;
+        }
+
+        .route-actions .btn {
+            flex: 1;
+            justify-content: center;
+        }
+    }
+</style>
+{% endblock %}

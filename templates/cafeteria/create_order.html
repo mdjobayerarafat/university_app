@@ -1,0 +1,679 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Create Order - UniHub</title>
+    <style>
+        :root {
+            --primary: #1d3557; /* Dark blue */
+            --secondary: #457b9d; /* Medium blue */
+            --accent: #e63946; /* Red */
+            --light: #f1faee; /* Light green */
+            --dark: #1d3557; /* Dark blue */
+            --success: #a8dadc; /* Light blue */
+            --danger: #e63946; /* Red */
+            --warning: #e63946; /* Red */
+            --info: #457b9d; /* Medium blue */
+            --muted: #6c757d; /* Gray */
+        }
+
+        body {
+            background-color: var(--light);
+            color: var(--dark);
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+        }
+
+        header {
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            color: white;
+            padding: 1rem;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .brand {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .logo {
+            font-size: 1.5rem;
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+        }
+
+        .logo-icon {
+            margin-right: 0.5rem;
+            font-size: 1.8rem;
+        }
+
+        .notification-bell {
+            position: relative;
+            cursor: pointer;
+        }
+
+        .notification-badge {
+            position: absolute;
+            top: -8px;
+            right: -8px;
+            background-color: var(--accent);
+            color: white;
+            border-radius: 50%;
+            width: 18px;
+            height: 18px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.7rem;
+        }
+
+        nav {
+            background-color: var(--primary);
+            padding: 0.8rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .nav-links {
+            display: flex;
+            list-style: none;
+            margin: 0;
+            padding: 0;
+        }
+
+        .nav-links li {
+            margin: 0 0.8rem;
+        }
+
+        .nav-links a {
+            color: white;
+            text-decoration: none;
+            font-weight: 500;
+            padding: 0.4rem 0.8rem;
+            border-radius: 4px;
+            transition: background-color 0.3s;
+            display: flex;
+            align-items: center;
+        }
+
+        .nav-links a i {
+            margin-right: 0.4rem;
+        }
+
+        .nav-links a:hover, .nav-links a.active {
+            background-color: rgba(255, 255, 255, 0.2);
+        }
+
+        .profile {
+            position: relative;
+        }
+
+        .profile:hover .profile-dropdown {
+            display: block;
+        }
+
+        .profile-dropdown {
+            display: none;
+            position: absolute;
+            top: 100%;
+            right: 0;
+            background-color: white;
+            box-shadow: 0 3px 10px rgba(0, 0, 0, 0.2);
+            border-radius: 4px;
+            min-width: 150px;
+            z-index: 100;
+        }
+
+        .profile-dropdown ul {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        .profile-dropdown li {
+            margin: 0;
+        }
+
+        .profile-dropdown a {
+            color: var(--primary);
+            padding: 0.8rem 1.2rem;
+            display: block;
+            text-decoration: none;
+            transition: background-color 0.2s;
+        }
+
+        .profile-dropdown a:hover {
+            background-color: var(--light);
+            color: var(--accent);
+        }
+
+        .profile-img {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            background-color: var(--accent);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 0.8rem;
+            font-weight: bold;
+            color: white;
+        }
+
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .header {
+            padding-bottom: 20px;
+            margin-bottom: 30px;
+            border-bottom: 2px solid var(--primary);
+        }
+
+        .order-form-container {
+            display: grid;
+            grid-template-columns: 2fr 1fr;
+            gap: 20px;
+        }
+
+        @media (max-width: 768px) {
+            .order-form-container {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .form-section {
+            background-color: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+
+        .form-title {
+            margin-top: 0;
+            padding-bottom: 10px;
+            border-bottom: 1px solid var(--light);
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 500;
+        }
+
+        .form-control {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid var(--light);
+            border-radius: 4px;
+            box-sizing: border-box;
+        }
+
+        .form-control:focus {
+            border-color: var(--primary);
+            outline: none;
+        }
+
+        .pickup-datetime-container {
+            display: flex;
+            gap: 10px;
+        }
+
+        .pickup-datetime-container .form-control {
+            flex: 1;
+        }
+
+        .menu-item-list {
+            max-height: 400px;
+            overflow-y: auto;
+            margin: 20px 0;
+        }
+
+        .menu-item {
+            display: flex;
+            align-items: center;
+            padding: 10px;
+            border-bottom: 1px solid var(--light);
+        }
+
+        .menu-item:last-child {
+            border-bottom: none;
+        }
+
+        .item-image {
+            width: 60px;
+            height: 60px;
+            object-fit: cover;
+            border-radius: 4px;
+            margin-right: 15px;
+        }
+
+        .item-details {
+            flex-grow: 1;
+        }
+
+        .item-name {
+            font-weight: 500;
+            margin: 0 0 5px 0;
+            color: var(--dark);
+        }
+
+        .item-price {
+            color: var(--primary);
+            font-weight: bold;
+        }
+
+        .item-category {
+            font-size: 0.85em;
+            color: var(--muted);
+        }
+
+        .item-actions {
+            display: flex;
+            align-items: center;
+        }
+
+        .quantity-input {
+            width: 50px;
+            text-align: center;
+            padding: 5px;
+            border: 1px solid var(--light);
+            border-radius: 4px;
+            margin: 0 10px;
+        }
+
+        .order-summary {
+            background-color: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+            padding: 20px;
+            position: sticky;
+            top: 20px;
+        }
+
+        .summary-title {
+            margin-top: 0;
+            padding-bottom: 10px;
+            border-bottom: 1px solid var(--light);
+        }
+
+        .selected-items {
+            margin-bottom: 20px;
+        }
+
+        .selected-item {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 10px;
+            padding-bottom: 10px;
+            border-bottom: 1px dashed var(--light);
+        }
+
+        .item-total {
+            font-weight: bold;
+        }
+
+        .order-total {
+            font-size: 1.2em;
+            font-weight: bold;
+            margin-top: 20px;
+            padding-top: 20px;
+            border-top: 2px solid var(--light);
+            display: flex;
+            justify-content: space-between;
+        }
+
+        .btn {
+            display: inline-block;
+            padding: 10px 20px;
+            background-color: var(--primary);
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            text-decoration: none;
+            font-weight: bold;
+            text-align: center;
+            transition: background-color 0.3s;
+        }
+
+        .btn-block {
+            display: block;
+            width: 100%;
+        }
+
+        .btn:hover {
+            background-color: var(--secondary);
+        }
+
+        .btn-secondary {
+            background-color: var(--muted);
+        }
+
+        .btn-secondary:hover {
+            background-color: var(--dark);
+        }
+
+        .empty-cart {
+            text-align: center;
+            padding: 20px;
+            color: var(--muted);
+        }
+    </style>
+</head>
+<body>
+    <!-- Navigation Bar -->
+    <header>
+        <div class="brand">
+            <div class="logo">
+                <span class="logo-icon">🏛️</span>
+                UniHub
+            </div>
+            <div class="notification-bell">
+            <a href="{% url 'notifications:list' %}" style="text-decoration: none; color: inherit;">
+                <span>🔔</span>
+                {% if unread_notifications_count %}
+                    <div class="notification-badge">{{ unread_notifications_count }}</div>
+                {% endif %}
+            </a>
+        </div>
+        </div>
+    </header>
+
+    <nav>
+        <ul class="nav-links">
+            <li><a href="{% url 'dashboard' %}">Home</a></li>
+            <li><a href="{% url 'cafeteria:cafeteria_list' %}" class="active">Cafeteria</a></li>
+            <li><a href="{% url 'transportation:route_list' %}"><i>🚌</i> Transport</a></li>
+        </ul>
+
+        <div class="profile">
+            <div class="profile-img">{{ request.user.first_name|first }}{{ request.user.last_name|first }}</div>
+            <span>{{ request.user.username }}</span>
+            <div class="profile-dropdown">
+                <ul>
+                    <li><a href="{% url 'profile' %}">My Profile</a></li>
+                    <li><a href="{% url 'logout' %}">Logout</a></li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <div class="container">
+        <div class="header">
+            <h1>Create Order</h1>
+            <p>Select items and customize your order from {{ cafeteria.name }}</p>
+        </div>
+
+       <form method="post">
+           {% csrf_token %}
+           <div class="order-form-container">
+               <div class="main-form">
+                <div class="form-section">
+                    <h2 class="form-title">Order Details</h2>
+
+                    {% for field in form %}
+                        {% if field.name == 'cafeteria' %}
+                            <div class="form-group">
+                                <label for="{{ field.id_for_label }}">{{ field.label }}</label>
+                                {{ field }}
+                                {% if field.errors %}
+                                    <div class="error-message">{{ field.errors }}</div>
+                                {% endif %}
+                            </div>
+                        {% elif field.name == 'pickup_time' %}
+                            <div class="form-group">
+                                <label for="{{ field.id_for_label }}">{{ field.label }}</label>
+                                <input type="datetime-local"
+                                       name="pickup_time"
+                                       id="{{ field.id_for_label }}"
+                                       class="form-control"
+                                       required
+                                       min="{{ form.fields.pickup_time.widget.attrs.min }}"
+                                       {% if field.value %}value="{{ field.value|date:'Y-m-d\TH:i' }}"{% endif %}>
+                                {% if field.help_text %}
+                                    <small class="form-text text-muted">{{ field.help_text }}</small>
+                                {% endif %}
+                                {% if field.errors %}
+                                    <div class="error-message">{{ field.errors }}</div>
+                                {% endif %}
+                            </div>
+                        {% elif field.name == 'delivery_option' %}
+                            <div class="form-group">
+                                <label for="{{ field.id_for_label }}">{{ field.label }}</label>
+                                {{ field }}
+                                {% if field.errors %}
+                                    <div class="error-message">{{ field.errors }}</div>
+                                {% endif %}
+                            </div>
+                        {% endif %}
+                    {% endfor %}
+
+                    <div class="form-group">
+                        <label for="{{ form.notes.id_for_label }}">Special Instructions</label>
+                        {{ form.notes }}
+                        {% if form.notes.errors %}
+                            <div class="error-message">{{ form.notes.errors }}</div>
+                        {% endif %}
+                    </div>
+                </div>
+
+                   <div class="form-section">
+                       <h2 class="form-title">Menu Items</h2>
+                       <div class="menu-item-list">
+                           {% if menu_items %}
+                               {% for item in menu_items %}
+                                   <div class="menu-item">
+                                       {% if item.image %}
+                                           <img src="{{ item.image.url }}" alt="{{ item.name }}" class="item-image">
+                                       {% endif %}
+                                       <div class="item-details">
+                                           <h3 class="item-name">{{ item.name }}</h3>
+                                           <div class="item-category">{{ item.category }}</div>
+                                           <div class="item-price">${{ item.price }}</div>
+                                       </div>
+                                       <div class="item-actions">
+                                           <button type="button" onclick="decrementItem({{ item.id }})">-</button>
+                                           <input type="number" id="quantity-{{ item.id }}" name="quantity-{{ item.id }}" class="quantity-input" value="0" min="0" max="10">
+                                           <button type="button" onclick="incrementItem({{ item.id }})">+</button>
+                                       </div>
+                                   </div>
+                               {% endfor %}
+                           {% else %}
+                               <div class="no-menu">
+                                   <h3>No Menu Items Available</h3>
+                                   <p>There are no items available for ordering at this time.</p>
+                                   <a href="{% url 'cafeteria:cafeteria_list' %}" class="btn">Back to Cafeterias</a>
+                               </div>
+                           {% endif %}
+                       </div>
+                   </div>
+               </div>
+
+               <div class="order-summary">
+                   <h2 class="summary-title">Order Summary</h2>
+                   <div class="selected-items" id="selected-items-container">
+                       <div class="empty-cart">Your cart is empty</div>
+                   </div>
+
+                   <div class="order-total">
+                       <span>Total:</span>
+                       <span id="order-total-price">$0.00</span>
+                   </div>
+
+                   <input type="hidden" name="total_price" id="total-price-input" value="0.00">
+                   <button type="submit" class="btn btn-block">Place Order</button>
+               </div>
+           </div>
+       </form>
+    </div>
+
+    <script>
+        // Store menu items data
+        const menuItems = {
+            {% for item in menu_items %}
+                "{{ item.id }}": {
+                    "name": "{{ item.name }}",
+                    "price": {{ item.price }},
+                    "id": {{ item.id }}
+                },
+            {% endfor %}
+        };
+
+        // Function to increment item quantity
+        function incrementItem(itemId) {
+            const input = document.getElementById(`quantity-${itemId}`);
+            const currentValue = parseInt(input.value) || 0;
+            if (currentValue < 10) {
+                input.value = currentValue + 1;
+                updateOrderSummary();
+            }
+        }
+
+        // Function to decrement item quantity
+        function decrementItem(itemId) {
+            const input = document.getElementById(`quantity-${itemId}`);
+            const currentValue = parseInt(input.value) || 0;
+            if (currentValue > 0) {
+                input.value = currentValue - 1;
+                updateOrderSummary();
+            }
+        }
+
+        // Function to update order summary
+        function updateOrderSummary() {
+            const selectedItemsContainer = document.getElementById('selected-items-container');
+            const orderTotalElement = document.getElementById('order-total-price');
+            const totalPriceInput = document.getElementById('total-price-input');
+
+            // Get all quantity inputs
+            const quantityInputs = document.querySelectorAll('.quantity-input');
+
+            let selectedItems = [];
+            let orderTotal = 0;
+
+            // Process each quantity input
+            quantityInputs.forEach(input => {
+                const itemId = input.id.split('-')[1];
+                const quantity = parseInt(input.value) || 0;
+
+                if (quantity > 0 && menuItems[itemId]) {
+                    const item = menuItems[itemId];
+                    const itemTotal = quantity * item.price;
+                    orderTotal += itemTotal;
+
+                    selectedItems.push({
+                        id: item.id,
+                        name: item.name,
+                        price: item.price,
+                        quantity: quantity,
+                        total: itemTotal
+                    });
+                }
+            });
+
+            // Update the DOM
+            if (selectedItems.length > 0) {
+                let html = '';
+
+                selectedItems.forEach(item => {
+                    html += `
+                        <div class="selected-item">
+                            <div>
+                                <span>${item.quantity}x</span>
+                                <span>${item.name}</span>
+                            </div>
+                            <div class="item-total">$${item.total.toFixed(2)}</div>
+                            <input type="hidden" name="items" value="${item.id},${item.quantity}">
+                        </div>
+                    `;
+                });
+
+                selectedItemsContainer.innerHTML = html;
+            } else {
+                selectedItemsContainer.innerHTML = '<div class="empty-cart">Your cart is empty</div>';
+            }
+
+            orderTotalElement.textContent = `$${orderTotal.toFixed(2)}`;
+            totalPriceInput.value = orderTotal.toFixed(2);
+        }
+
+        // Set minimum date for pickup to today
+        document.addEventListener('DOMContentLoaded', function() {
+            const today = new Date();
+            const formattedDate = today.toISOString().split('T')[0];
+            document.getElementById('pickup_date').min = formattedDate;
+
+            // Set default time to current time + 30 minutes rounded to nearest hour
+            const now = new Date();
+            now.setMinutes(now.getMinutes() + 30);
+            const roundedHour = now.getHours();
+            const minutes = now.getMinutes() >= 30 ? '30' : '00';
+            document.getElementById('pickup_time').value = `${roundedHour.toString().padStart(2, '0')}:${minutes}`;
+
+            // Set the initial date to today
+            document.getElementById('pickup_date').value = formattedDate;
+
+            // Initialize order summary
+            updateOrderSummary();
+
+            // Add event listeners to quantity inputs
+            const quantityInputs = document.querySelectorAll('.quantity-input');
+            quantityInputs.forEach(input => {
+                input.addEventListener('change', updateOrderSummary);
+            });
+
+            // Form validation before submit
+            document.querySelector('form').addEventListener('submit', function(e) {
+                const totalPrice = parseFloat(document.getElementById('total-price-input').value);
+                const pickupDate = document.getElementById('pickup_date').value;
+                const pickupTime = document.getElementById('pickup_time').value;
+
+                if (totalPrice <= 0) {
+                    e.preventDefault();
+                    alert('Please add at least one item to your order.');
+                    return false;
+                }
+
+                if (!pickupDate || !pickupTime) {
+                    e.preventDefault();
+                    alert('Please select a pickup date and time.');
+                    return false;
+                }
+
+                // Combine date and time into a hidden field for form submission
+                const pickupDateTime = new Date(`${pickupDate}T${pickupTime}`);
+                if (pickupDateTime < new Date()) {
+                    e.preventDefault();
+                    alert('Pickup time must be in the future.');
+                    return false;
+                }
+
+                // Create hidden field for the combined datetime in ISO format
+                const hiddenDateTimeInput = document.createElement('input');
+                hiddenDateTimeInput.type = 'hidden';
+                hiddenDateTimeInput.name = 'pickup_datetime';
+                hiddenDateTimeInput.value = pickupDateTime.toISOString();
+                this.appendChild(hiddenDateTimeInput);
+
+                return true;
+            });
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,82 @@
+
+
+{% block title %}Student List{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <h1>Student List</h1>
+
+    {% if view_type == 'section' %}
+        <!-- Display students for a specific section -->
+        <div class="card mb-4">
+            <div class="card-header bg-primary text-white">
+                <h5>{{ section.course.code }}: {{ section.course.name }} - Section {{ section.section_number }}</h5>
+            </div>
+            <div class="card-body">
+                <p><strong>Location:</strong> {{ section.location }}</p>
+                <p><strong>Semester:</strong> {{ section.semester }}</p>
+                <p><strong>Enrollment:</strong> {{ section.enrolled }}/{{ section.capacity }}</p>
+            </div>
+        </div>
+
+        {% if students %}
+            <table class="table table-striped">
+                <thead>
+                    <tr>
+                        <th>Student ID</th>
+                        <th>Name</th>
+                        <th>Email</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for student in students %}
+                    <tr>
+                        <td>{{ student.student_id }}</td>
+                        <td>{{ student.get_full_name }}</td>
+                        <td>{{ student.email }}</td>
+                        <td>
+                            <a href="{% url 'academics:faculty_student_detail' student.id %}" class="btn btn-sm btn-info">
+                                <i class="fas fa-user"></i> View Profile
+                            </a>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        {% else %}
+            <div class="alert alert-info">No students enrolled in this class section.</div>
+        {% endif %}
+
+        <div class="mt-3">
+            <a href="{% url 'academics:faculty_students' %}" class="btn btn-secondary">
+                <i class="fas fa-arrow-left"></i> Back to Class List
+            </a>
+        </div>
+    {% else %}
+        <!-- Display list of classes to select students from -->
+        <p>Select a class to view its enrolled students:</p>
+
+        <div class="list-group mb-4">
+            {% for class_section in faculty_classes %}
+            <a href="{% url 'academics:faculty_students' %}?section={{ class_section.id }}" class="list-group-item list-group-item-action">
+                <div class="d-flex w-100 justify-content-between">
+                    <h5 class="mb-1">{{ class_section.course.code }}: {{ class_section.course.name }}</h5>
+                    <small>Section {{ class_section.section_number }}</small>
+                </div>
+                <p class="mb-1">{{ class_section.enrolled }}/{{ class_section.capacity }} students enrolled</p>
+                <small>{{ class_section.semester }}</small>
+            </a>
+            {% empty %}
+            <div class="list-group-item">You are not teaching any classes this semester.</div>
+            {% endfor %}
+        </div>
+
+        <div class="mt-3">
+            <a href="{% url 'academics:faculty_dashboard' %}" class="btn btn-secondary">
+                <i class="fas fa-arrow-left"></i> Back to Dashboard
+            </a>
+        </div>
+    {% endif %}
+</div>
+{% endblock %}

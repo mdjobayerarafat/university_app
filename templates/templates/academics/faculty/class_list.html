@@ -1,0 +1,90 @@
+
+{% load static %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1>Class List</h1>
+        <div>
+            <form method="get" class="form-inline">
+                <select name="semester" class="form-control mr-2" onchange="this.form.submit()">
+                    <option value="Spring 2025" {% if current_semester == "Spring 2025" %}selected{% endif %}>Spring 2025</option>
+                    <option value="Fall 2024" {% if current_semester == "Fall 2024" %}selected{% endif %}>Fall 2024</option>
+                </select>
+            </form>
+        </div>
+    </div>
+
+    {% if is_department_head %}
+        <div class="alert alert-info">
+            <i class="fas fa-info-circle"></i> As department head, you can view all classes in your department.
+        </div>
+    {% endif %}
+
+    {% if classes %}
+        <div class="table-responsive">
+            <table class="table table-hover">
+                <thead>
+                    <tr>
+                        <th>Course</th>
+                        <th>Section</th>
+                        <th>Schedule</th>
+                        <th>Location</th>
+                        <th>Enrollment</th>
+                        <th>Instructor</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for section in classes %}
+                    <tr>
+                        <td>
+                            <strong>{{ section.course.code }}</strong><br>
+                            <small>{{ section.course.name }}</small>
+                        </td>
+                        <td>{{ section.section_number }}</td>
+                        <td>
+                            {% for schedule in section.schedules.all %}
+                                {{ schedule.get_day_display }} {{ schedule.start_time|time:"g:i A" }}-{{ schedule.end_time|time:"g:i A" }}
+                                {% if not forloop.last %}<br>{% endif %}
+                            {% empty %}
+                                <span class="text-muted">Not scheduled</span>
+                            {% endfor %}
+                        </td>
+                        <td>{{ section.location }}</td>
+                        <td>
+                            <div class="progress" style="height: 20px;">
+                                <div class="progress-bar" role="progressbar"
+                                     style="width: {% widthratio section.enrolled section.capacity 100 %}%;"
+                                     aria-valuenow="{{ section.enrolled }}"
+                                     aria-valuemin="0"
+                                     aria-valuemax="{{ section.capacity }}">
+                                    {{ section.enrolled }}/{{ section.capacity }}
+                                </div>
+                            </div>
+                        </td>
+                        <td>{{ section.instructor.user.get_full_name }}</td>
+                        <td>
+                            <div class="btn-group">
+                                <a href="{% url 'academics:faculty_class_detail' pk=section.pk %}"
+                                   class="btn btn-sm btn-primary">
+                                    <i class="fas fa-eye"></i> View
+                                </a>
+                                <a href="{% url 'academics:faculty_class_schedule_edit' pk=section.pk %}"
+                                   class="btn btn-sm btn-outline-primary">
+                                    <i class="fas fa-calendar-alt"></i> Schedule
+                                </a>
+                            </div>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    {% else %}
+        <div class="alert alert-warning">
+            <i class="fas fa-exclamation-triangle"></i> No classes found for the selected semester.
+        </div>
+    {% endif %}
+</div>
+{% endblock %}

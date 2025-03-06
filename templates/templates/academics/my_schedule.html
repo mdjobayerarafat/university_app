@@ -1,0 +1,159 @@
+
+
+{% block title %}My Schedule{% endblock %}
+
+{% block content %}
+{% load academics_extras %}
+<div class="container mt-4">
+    <h2 class="mb-4">My Schedule</h2>
+
+    {% if no_enrollments %}
+        <div class="alert alert-info">
+            <h4>No Classes</h4>
+            <p>You are not enrolled in any classes for the current semester.</p>
+            <a href="{% url 'academics:course_list' %}" class="btn btn-primary">Browse Courses</a>
+        </div>
+    {% else %}
+        <!-- Section selector if enrolled in multiple classes -->
+        {% if enrollments.count > 1 %}
+        <div class="card mb-4">
+            <div class="card-header">
+                <h5>My Classes</h5>
+            </div>
+            <div class="card-body">
+                <form method="get" class="mb-3">
+                    <div class="form-group">
+                        <label for="section">Select Class:</label>
+                        <select name="section" id="section" class="form-control" onchange="this.form.submit()">
+                            {% for enrollment in enrollments %}
+                                <option value="{{ enrollment.class_section.id }}" {% if section.id == enrollment.class_section.id %}selected{% endif %}>
+                                    {{ enrollment.class_section.course.code }} {{ enrollment.class_section.section_number }}:
+                                    {{ enrollment.class_section.course.name }}
+                                </option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                </form>
+            </div>
+        </div>
+        {% endif %}
+
+        <!-- Current section info -->
+        <div class="card mb-4">
+            <div class="card-header">
+                <h5>{{ section.course.code }} {{ section.section_number }}: {{ section.course.name }}</h5>
+            </div>
+            <div class="card-body">
+                <p><strong>Instructor:</strong> {{ section.instructor.user.get_full_name }}</p>
+                <p><strong>Location:</strong> {{ section.location }}</p>
+                <p><strong>Semester:</strong> {{ section.semester }}</p>
+            </div>
+        </div>
+
+        <!-- Class Schedule -->
+        <div class="card mb-4">
+            <div class="card-header">
+                <h5>Schedule</h5>
+            </div>
+            <div class="card-body">
+                <table class="table table-striped">
+                    <thead>
+                        <tr>
+                            <th>Day</th>
+                            <th>Time</th>
+                            <th>Location</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for schedule in schedules %}
+                            <tr>
+                                <td>{{ day_labels|get_item:schedule.day }}</td>
+                                <td>{{ schedule.start_time|time:"g:i A" }} - {{ schedule.end_time|time:"g:i A" }}</td>
+                                <td>{{ section.location }}</td>
+                            </tr>
+                        {% empty %}
+                            <tr>
+                                <td colspan="3" class="text-center">No scheduled meeting times</td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Upcoming Assignments -->
+        <div class="card mb-4">
+            <div class="card-header">
+                <h5>Upcoming Assignments</h5>
+            </div>
+            <div class="card-body">
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>Title</th>
+                            <th>Due Date</th>
+                            <th>Points</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for assignment in upcoming_assignments %}
+                            <tr>
+                                <td>{{ assignment.title }}</td>
+                                <td>{{ assignment.due_date|date:"M d, Y g:i A" }}</td>
+                                <td>{{ assignment.points_possible }}</td>
+                            </tr>
+                        {% empty %}
+                            <tr>
+                                <td colspan="3" class="text-center">No upcoming assignments</td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+                <a href="{% url 'academics:assignments' %}" class="btn btn-outline-primary btn-sm">View All Assignments</a>
+            </div>
+        </div>
+
+        <!-- Upcoming Exams -->
+        <div class="card mb-4">
+            <div class="card-header">
+                <h5>Upcoming Exams</h5>
+            </div>
+            <div class="card-body">
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>Title</th>
+                            <th>Date</th>
+                            <th>Location</th>
+                            <th>Duration</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for exam in upcoming_exams %}
+                            <tr>
+                                <td>{{ exam.title }}</td>
+                                <td>{{ exam.date|date:"M d, Y g:i A" }}</td>
+                                <td>{{ exam.location }}</td>
+                                <td>{{ exam.duration_minutes }} minutes</td>
+                            </tr>
+                        {% empty %}
+                            <tr>
+                                <td colspan="4" class="text-center">No upcoming exams</td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+                <a href="{% url 'academics:exams' %}" class="btn btn-outline-primary btn-sm">View All Exams</a>
+            </div>
+        </div>
+
+        <!-- Drop Class Button -->
+        <form action="{% url 'academics:drop_class' section.id %}" method="post" class="mb-5">
+            {% csrf_token %}
+            <button type="submit" class="btn btn-danger" onclick="return confirm('Are you sure you want to drop this class?')">
+                Drop this Class
+            </button>
+        </form>
+    {% endif %}
+</div>
+{% endblock %}

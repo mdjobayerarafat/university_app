@@ -1,0 +1,104 @@
+
+
+{% block title %}Student Profile - {{ student.get_full_name }}{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    {% if not authorized %}
+        <div class="alert alert-danger">
+            You are not authorized to view this student's profile.
+        </div>
+    {% else %}
+        <div class="card mb-4">
+            <div class="card-header bg-primary text-white">
+                <h2>{{ student.get_full_name }}</h2>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-3">
+                        {% if student.profile_picture %}
+                            <img src="{{ student.profile_picture.url }}" alt="Profile Picture" class="img-fluid rounded mb-3">
+                        {% else %}
+                            <div class="text-center p-3 bg-light rounded mb-3">
+                                <i class="fas fa-user-graduate fa-5x text-secondary"></i>
+                            </div>
+                        {% endif %}
+                    </div>
+                    <div class="col-md-9">
+                        <h4>Personal Information</h4>
+                        <dl class="row">
+                            <dt class="col-sm-3">Student ID:</dt>
+                            <dd class="col-sm-9">{{ student.student_id }}</dd>
+
+                            <dt class="col-sm-3">Email:</dt>
+                            <dd class="col-sm-9">{{ student.email }}</dd>
+
+                            <dt class="col-sm-3">Department:</dt>
+                            <dd class="col-sm-9">{{ student.department.name }}</dd>
+
+                            <dt class="col-sm-3">Program:</dt>
+                            <dd class="col-sm-9">{{ student.program }}</dd>
+
+                            <dt class="col-sm-3">Year:</dt>
+                            <dd class="col-sm-9">{{ student.year }}</dd>
+                        </dl>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="card mb-4">
+            <div class="card-header bg-info text-white">
+                <h4>Current Enrollments</h4>
+            </div>
+            <div class="card-body">
+                {% if enrollments %}
+                    <table class="table table-striped">
+                        <thead>
+                            <tr>
+                                <th>Course Code</th>
+                                <th>Course Name</th>
+                                <th>Section</th>
+                                <th>Instructor</th>
+                                <th>Schedule</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for enrollment in enrollments %}
+                            <tr>
+                                <td>{{ enrollment.class_section.course.code }}</td>
+                                <td>{{ enrollment.class_section.course.name }}</td>
+                                <td>{{ enrollment.class_section.section_number }}</td>
+                                <td>{{ enrollment.class_section.instructor.user.get_full_name }}</td>
+                                <td>
+                                    {% for schedule in enrollment.class_section.schedules.all %}
+                                        {% if schedule.day == 'MON' %}Mon
+                                        {% elif schedule.day == 'TUE' %}Tue
+                                        {% elif schedule.day == 'WED' %}Wed
+                                        {% elif schedule.day == 'THU' %}Thu
+                                        {% elif schedule.day == 'FRI' %}Fri
+                                        {% elif schedule.day == 'SAT' %}Sat
+                                        {% elif schedule.day == 'SUN' %}Sun
+                                        {% endif %}
+                                        {{ schedule.start_time|time:"H:i" }}-{{ schedule.end_time|time:"H:i" }}
+                                        {% if not forloop.last %}<br>{% endif %}
+                                    {% endfor %}
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                {% else %}
+                    <div class="alert alert-info">This student is not enrolled in any classes this semester.</div>
+                {% endif %}
+            </div>
+        </div>
+
+        <div class="mt-3">
+            <a href="javascript:history.back()" class="btn btn-secondary">
+                <i class="fas fa-arrow-left"></i> Back
+            </a>
+        </div>
+    {% endif %}
+</div>
+{% endblock %}

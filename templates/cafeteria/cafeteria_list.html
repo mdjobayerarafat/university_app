@@ -1,0 +1,363 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Select Cafeteria - UniHub</title>
+    <style>
+        :root {
+            --primary: #1d3557; /* Dark blue */
+            --secondary: #457b9d; /* Medium blue */
+            --accent: #e63946; /* Red */
+            --light: #f1faee; /* Light green */
+            --dark: #1d3557; /* Dark blue */
+            --success: #a8dadc; /* Light blue */
+            --danger: #e63946; /* Red */
+            --warning: #e63946; /* Red */
+            --info: #457b9d; /* Medium blue */
+            --muted: #6c757d; /* Gray */
+        }
+
+        body {
+            background-color: var(--light);
+            color: var(--dark);
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+        }
+
+        header {
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            color: white;
+            padding: 1rem;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .brand {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .logo {
+            font-size: 1.5rem;
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+        }
+
+        .logo-icon {
+            margin-right: 0.5rem;
+            font-size: 1.8rem;
+        }
+
+        .notification-bell {
+            position: relative;
+            cursor: pointer;
+        }
+
+        .notification-badge {
+            position: absolute;
+            top: -8px;
+            right: -8px;
+            background-color: var(--accent);
+            color: white;
+            border-radius: 50%;
+            width: 18px;
+            height: 18px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.7rem;
+        }
+
+        nav {
+            background-color: var(--primary);
+            padding: 0.8rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .nav-links {
+            display: flex;
+            list-style: none;
+            margin: 0;
+            padding: 0;
+        }
+
+        .nav-links li {
+            margin: 0 0.8rem;
+        }
+
+        .nav-links a {
+            color: white;
+            text-decoration: none;
+            font-weight: 500;
+            padding: 0.4rem 0.8rem;
+            border-radius: 4px;
+            transition: background-color 0.3s;
+            display: flex;
+            align-items: center;
+        }
+
+        .nav-links a i {
+            margin-right: 0.4rem;
+        }
+
+        .nav-links a:hover, .nav-links a.active {
+            background-color: rgba(255, 255, 255, 0.2);
+        }
+
+        .profile {
+            position: relative;
+        }
+
+        .profile:hover .profile-dropdown {
+            display: block;
+        }
+
+        .profile-dropdown {
+            display: none;
+            position: absolute;
+            top: 100%;
+            right: 0;
+            background-color: white;
+            box-shadow: 0 3px 10px rgba(0, 0, 0, 0.2);
+            border-radius: 4px;
+            min-width: 150px;
+            z-index: 100;
+        }
+
+        .profile-dropdown ul {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        .profile-dropdown li {
+            margin: 0;
+        }
+
+        .profile-dropdown a {
+            color: var(--primary);
+            padding: 0.8rem 1.2rem;
+            display: block;
+            text-decoration: none;
+            transition: background-color 0.2s;
+        }
+
+        .profile-dropdown a:hover {
+            background-color: var(--light);
+            color: var(--accent);
+        }
+
+        .profile-img {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            background-color: var(--accent);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 0.8rem;
+            font-weight: bold;
+            color: white;
+        }
+
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .header {
+            padding-bottom: 20px;
+            margin-bottom: 30px;
+            border-bottom: 2px solid var(--primary);
+        }
+
+        .cafeteria-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 20px;
+        }
+
+        .cafeteria-card {
+            background-color: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+            transition: transform 0.3s ease;
+        }
+
+        .cafeteria-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .cafeteria-image {
+            width: 100%;
+            height: 180px;
+            object-fit: cover;
+        }
+
+        .cafeteria-info {
+            padding: 20px;
+        }
+
+        .cafeteria-name {
+            margin: 0 0 10px 0;
+            color: var(--dark);
+        }
+
+        .cafeteria-location {
+            color: var(--muted);
+            margin-bottom: 10px;
+        }
+
+        .cafeteria-hours {
+            font-size: 0.9em;
+            margin-bottom: 15px;
+        }
+
+        .btn {
+            display: inline-block;
+            padding: 10px 20px;
+            background-color: var(--primary);
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            text-decoration: none;
+            font-weight: bold;
+            text-align: center;
+        }
+
+        .btn:hover {
+            background-color: var(--secondary);
+        }
+
+        .status-badge {
+            display: inline-block;
+            padding: 5px 10px;
+            border-radius: 4px;
+            font-size: 0.85em;
+            font-weight: bold;
+            margin-bottom: 15px;
+        }
+
+        .status-open {
+            background-color: var(--success);
+            color: var(--dark);
+        }
+
+        .status-closed {
+            background-color: var(--danger);
+            color: white;
+        }
+
+        .no-cafeterias {
+            text-align: center;
+            padding: 50px;
+            background-color: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        @media (max-width: 768px) {
+            .cafeteria-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .nav-links {
+                display: none;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Navigation Bar -->
+    <header>
+        <div class="brand">
+            <div class="logo">
+                <span class="logo-icon">🏛️</span>
+                UniHub
+            </div>
+             <div class="notification-bell">
+            <a href="{% url 'notifications:list' %}" style="text-decoration: none; color: inherit;">
+                <span>🔔</span>
+                {% if unread_notifications_count %}
+                    <div class="notification-badge">{{ unread_notifications_count }}</div>
+                {% endif %}
+            </a>
+        </div>
+        </div>
+    </header>
+
+    <nav>
+        <ul class="nav-links">
+            <li><a href="{% url 'dashboard' %}">Home</a></li>
+            <li><a href="{% url 'cafeteria:cafeteria_list' %}" class="active">Cafeteria</a></li>
+            <li><a href="{% url 'transportation:route_list' %}"><i>🚌</i> Transport</a></li>
+              <li><a href="{% url 'cafeteria:my_orders' %}">My orders</a></li>
+        </ul>
+
+        <div class="profile">
+            <div class="profile-img">{{ request.user.first_name|first }}{{ request.user.last_name|first }}</div>
+            <span>{{ request.user.username }}</span>
+            <div class="profile-dropdown">
+                <ul>
+                    <li><a href="{% url 'profile' %}">My Profile</a></li>
+                    <li><a href="{% url 'logout' %}">Logout</a></li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <div class="container">
+        <div class="header">
+            <h1>Select a Cafeteria</h1>
+            <p>Choose a cafeteria to view today's menu and place an order.</p>
+        </div>
+
+        {% if cafeterias %}
+            <div class="cafeteria-grid">
+                {% for cafeteria in cafeterias %}
+                    <div class="cafeteria-card">
+                        {% if cafeteria.image %}
+                            <img src="{{ cafeteria.image.url }}" alt="{{ cafeteria.name }}" class="cafeteria-image">
+                        {% endif %}
+                        <div class="cafeteria-info">
+                            <h2 class="cafeteria-name">{{ cafeteria.name }}</h2>
+                            <div class="cafeteria-location">
+                                <strong>Location:</strong> {{ cafeteria.location }}
+                            </div>
+                            <div class="cafeteria-hours">
+                                <strong>Hours:</strong> {{ cafeteria.opening_time|time:"g:i A" }} - {{ cafeteria.closing_time|time:"g:i A" }}
+                            </div>
+
+                            {% now "H:i" as current_time %}
+                            {% if cafeteria.opening_time|time:"H:i" <= current_time and current_time <= cafeteria.closing_time|time:"H:i" %}
+                                <div class="status-badge status-open">Open Now</div>
+                            {% else %}
+                                <div class="status-badge status-closed">Closed</div>
+                            {% endif %}
+
+
+                            <a href="{% url 'cafeteria:cafeteria_detail' cafeteria.pk %}" class="btn">View Menu</a>
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+        {% else %}
+            <div class="no-cafeterias">
+                <h2>No Cafeterias Available</h2>
+                <p>There are currently no cafeterias in the system.</p>
+            </div>
+        {% endif %}
+    </div>
+</body>
+</html>
