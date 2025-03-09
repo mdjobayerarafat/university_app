@@ -1,0 +1,185 @@
+{% block content %}
+<div class="search-container">
+    <h1>Search Users</h1>
+    <form method="POST" class="search-form">
+        {% csrf_token %}
+        <div class="input-group">
+            <input type="text" name="search" placeholder="Search by username or name..." class="search-input">
+            <button type="submit" class="search-btn">Search</button>
+        </div>
+    </form>
+
+    {% if users %}
+        <div class="user-list">
+            {% for user in users %}
+                <div class="user-card">
+                    <div class="user-avatar">{{ user.username|make_list|first|upper }}</div>
+                    <div class="user-info">
+                        <h3>{{ user.username }}</h3>
+                        <p>{{ user.name }}</p>
+                    </div>
+                    <a href="{% url 'addFriend' user.username %}" class="add-friend-btn">Add Friend</a>
+                </div>
+            {% endfor %}
+        </div>
+    {% else %}
+        <div class="empty-state">
+            <p>No users found. Try a different search term.</p>
+        </div>
+    {% endif %}
+</div>
+
+<style>
+:root {
+    --primary-color: #6c63ff;
+    --secondary-color: #ff6b6b;
+    --background-gradient: linear-gradient(135deg, #f5f7fa, #c3cfe2);
+    --card-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    --hover-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+    --border-radius: 12px;
+    --transition-speed: 0.3s;
+}
+
+.search-container {
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 2rem;
+    background: white;
+    border-radius: var(--border-radius);
+    box-shadow: var(--card-shadow);
+}
+
+h1 {
+    font-size: 2rem;
+    color: var(--primary-color);
+    margin-bottom: 1.5rem;
+    font-weight: 700;
+    text-align: center;
+}
+
+.search-form {
+    margin-bottom: 2rem;
+}
+
+.input-group {
+    display: flex;
+    gap: 1rem;
+    align-items: center;
+}
+
+.search-input {
+    flex: 1;
+    padding: 0.8rem;
+    border: 1px solid #ddd;
+    border-radius: var(--border-radius);
+    font-size: 1rem;
+    outline: none;
+    transition: border-color var(--transition-speed) ease;
+}
+
+.search-input:focus {
+    border-color: var(--primary-color);
+}
+
+.search-btn {
+    background: var(--primary-color);
+    color: white;
+    border: none;
+    padding: 0.8rem 1.5rem;
+    border-radius: var(--border-radius);
+    cursor: pointer;
+    transition: background var(--transition-speed) ease;
+}
+
+.search-btn:hover {
+    background: var(--secondary-color);
+}
+
+.user-list {
+    display: grid;
+    gap: 1rem;
+}
+
+.user-card {
+    display: flex;
+    align-items: center;
+    padding: 1rem;
+    background: #f8f9fa;
+    border-radius: var(--border-radius);
+    box-shadow: var(--card-shadow);
+    transition: transform var(--transition-speed) ease;
+}
+
+.user-card:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--hover-shadow);
+}
+
+.user-avatar {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background: var(--primary-color);
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.2rem;
+    margin-right: 1rem;
+}
+
+.user-info {
+    flex: 1;
+}
+
+.user-info h3 {
+    margin: 0;
+    font-size: 1rem;
+    font-weight: 600;
+    color: #333;
+}
+
+.user-info p {
+    margin: 0;
+    font-size: 0.9rem;
+    color: #666;
+}
+
+.add-friend-btn {
+    background: var(--primary-color);
+    color: white;
+    border: none;
+    padding: 0.5rem 1rem;
+    border-radius: var(--border-radius);
+    cursor: pointer;
+    text-decoration: none;
+    transition: background var(--transition-speed) ease;
+}
+
+.add-friend-btn:hover {
+    background: var(--secondary-color);
+}
+
+.empty-state {
+    text-align: center;
+    padding: 2rem;
+    background: #f8f9fa;
+    border-radius: var(--border-radius);
+    color: #666;
+}
+
+@media (max-width: 768px) {
+    .search-container {
+        padding: 1rem;
+    }
+
+    .input-group {
+        flex-direction: column;
+    }
+
+    .search-btn {
+        width: 100%;
+    }
+}
+</style>
+{% endblock %}

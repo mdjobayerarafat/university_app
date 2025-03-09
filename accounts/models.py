@@ -11,6 +11,7 @@ class User(AbstractUser):
         ('admin', 'Administrator'),
     )
     # Add default='student' to ensure all users have a role
+    name = models.CharField(max_length=100, blank=True, null=True)
     role = models.CharField(max_length=20, choices=ROLES, default='student')
     student_id = models.CharField(max_length=20, blank=True, null=True)
     department = models.ForeignKey('academics.Department', on_delete=models.SET_NULL, null=True, blank=True)

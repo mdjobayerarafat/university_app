@@ -1,0 +1,250 @@
+{% block content %}
+<div class="landing-container">
+    <div class="welcome-section">
+        <h1>Welcome to StudyChat</h1>
+        {% if not request.user.is_authenticated %}
+            <p class="subtitle">A secure messaging platform for students and teachers</p>
+            <div class="auth-buttons">
+                <a href="{% url 'login' %}" class="btn btn-primary">Login</a>
+                <a href="{% url 'register' %}" class="btn btn-secondary">Register</a>
+            </div>
+        {% else %}
+            <div class="user-dashboard">
+                <h2>Welcome back, {{ request.user.name }}!</h2>
+                <div class="dashboard-actions">
+                    <a href="{% url 'search' %}" class="action-card">
+                        <div class="card-icon">🔍</div>
+                        <h3>Find Users</h3>
+                        <p>Search for students and teachers</p>
+                    </a>
+                    {% if friends %}
+                        <a href="{% url 'chat' friends.0.username %}" class="action-card">
+                            <div class="card-icon">💬</div>
+                            <h3>Recent Chats</h3>
+                            <p>Continue your conversations</p>
+                        </a>
+                    {% endif %}
+                </div>
+            </div>
+        {% endif %}
+    </div>
+
+    {% if request.user.is_authenticated %}
+        <div class="friends-section">
+            <h2>Your Contacts</h2>
+            {% if friends %}
+                <div class="friends-grid">
+                    {% for friend in friends %}
+                        <a href="{% url 'chat' friend.username %}" class="friend-card">
+                            <div class="friend-avatar">{{ friend.name|make_list|first }}</div>
+                            <div class="friend-info">
+                                <h3>{{ friend.name }}</h3>
+                                <p>{{ friend.username }}</p>
+                            </div>
+                        </a>
+                    {% endfor %}
+                </div>
+            {% else %}
+                <div class="empty-state">
+                    <p>You haven't added any contacts yet.</p>
+                    <a href="{% url 'search' %}" class="btn btn-primary">Find Users</a>
+                </div>
+            {% endif %}
+        </div>
+    {% endif %}
+</div>
+
+<style>
+:root {
+    --primary-color: #6c63ff;
+    --secondary-color: #ff6b6b;
+    --background-gradient: linear-gradient(135deg, #f5f7fa, #c3cfe2);
+    --card-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    --hover-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+    --border-radius: 12px;
+    --transition-speed: 0.3s;
+}
+
+body {
+    background: var(--background-gradient);
+    font-family: 'Inter', sans-serif;
+    color: #333;
+    margin: 0;
+    padding: 0;
+}
+
+.landing-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 2rem;
+}
+
+.welcome-section {
+    text-align: center;
+    padding: 4rem 0;
+    background: white;
+    border-radius: var(--border-radius);
+    box-shadow: var(--card-shadow);
+    margin-bottom: 2rem;
+}
+
+h1 {
+    font-size: 2.8rem;
+    color: var(--primary-color);
+    margin-bottom: 1rem;
+    font-weight: 700;
+}
+
+.subtitle {
+    font-size: 1.2rem;
+    color: #666;
+    margin-bottom: 2rem;
+}
+
+.auth-buttons {
+    display: flex;
+    gap: 1rem;
+    justify-content: center;
+    margin-top: 2rem;
+}
+
+.btn {
+    padding: 0.8rem 2rem;
+    border-radius: var(--border-radius);
+    text-decoration: none;
+    font-weight: 500;
+    transition: all var(--transition-speed) ease;
+    border: none;
+    cursor: pointer;
+}
+
+.btn-primary {
+    background: var(--primary-color);
+    color: white;
+}
+
+.btn-secondary {
+    background: white;
+    color: var(--primary-color);
+    border: 2px solid var(--primary-color);
+}
+
+.btn:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--hover-shadow);
+}
+
+.user-dashboard {
+    margin-top: 2rem;
+}
+
+.dashboard-actions {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 1.5rem;
+    margin-top: 2rem;
+}
+
+.action-card {
+    background: white;
+    padding: 1.5rem;
+    border-radius: var(--border-radius);
+    text-decoration: none;
+    color: inherit;
+    transition: all var(--transition-speed) ease;
+    box-shadow: var(--card-shadow);
+    border: 1px solid #e0e0e0;
+}
+
+.action-card:hover {
+    transform: translateY(-4px);
+    box-shadow: var(--hover-shadow);
+}
+
+.card-icon {
+    font-size: 2rem;
+    margin-bottom: 1rem;
+    color: var(--primary-color);
+}
+
+.friends-section {
+    margin-top: 3rem;
+    background: white;
+    padding: 2rem;
+    border-radius: var(--border-radius);
+    box-shadow: var(--card-shadow);
+}
+
+.friends-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 1rem;
+    margin-top: 1.5rem;
+}
+
+.friend-card {
+    display: flex;
+    align-items: center;
+    padding: 1rem;
+    background: white;
+    border-radius: var(--border-radius);
+    text-decoration: none;
+    color: inherit;
+    transition: all var(--transition-speed) ease;
+    box-shadow: var(--card-shadow);
+    border: 1px solid #e0e0e0;
+}
+
+.friend-card:hover {
+    transform: translateX(4px);
+    box-shadow: var(--hover-shadow);
+}
+
+.friend-avatar {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background: var(--primary-color);
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.2rem;
+    margin-right: 1rem;
+}
+
+.friend-info h3 {
+    margin: 0;
+    font-size: 1rem;
+    font-weight: 600;
+}
+
+.friend-info p {
+    margin: 0;
+    font-size: 0.9rem;
+    color: #666;
+}
+
+.empty-state {
+    text-align: center;
+    padding: 2rem;
+    background: #f8f9fa;
+    border-radius: var(--border-radius);
+    margin-top: 1.5rem;
+}
+
+@media (max-width: 768px) {
+    .landing-container {
+        padding: 1rem;
+    }
+
+    .dashboard-actions {
+        grid-template-columns: 1fr;
+    }
+
+    .friends-grid {
+        grid-template-columns: 1fr;
+    }
+}
+</style>
+{% endblock %}

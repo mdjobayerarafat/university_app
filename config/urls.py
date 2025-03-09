@@ -18,8 +18,10 @@ from django.conf import settings
 from django.conf.urls.static import static
 from django.contrib import admin
 from django.urls import path, include
+from accounts.views import LoginView
 
 urlpatterns = [
+    path('', LoginView.as_view(), name='login'),
     path('admin/', admin.site.urls),
     path('accounts/', include('accounts.urls')),
     path('academics/', include('academics.urls')),
@@ -28,6 +30,10 @@ urlpatterns = [
     path('events/', include('events.urls')),
     path('notifications/', include('notifications.urls')),
     path('navigation/', include('navigation.urls')),
+    path('chatbot/', include('chatbot.urls')),
+    path('chat/', include('chat.urls')),
+    path('security/', include('security.urls')),
+
 ]
 if settings.DEBUG:
     urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
