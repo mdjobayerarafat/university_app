@@ -1,6 +1,6 @@
 # UniHub - All-in-One University Management System
 
-![UniHub Logo](static/images/logo.png)
+![UniHub Logo](Neonomads/1.png)
 
 [![Django](https://img.shields.io/badge/Django-4.2-green.svg)](https://www.djangoproject.com/)
 [![Python](https://img.shields.io/badge/Python-3.8+-blue.svg)](https://www.python.org/)
@@ -109,7 +109,7 @@ university_app/
 
 1. **Clone the Repository**
    ```bash
-   git clone https://github.com/your-username/university_app.git
+   git clone https://github.com/mdjobayerarafat/university_app.git
    cd university_app
    ```
 
@@ -168,16 +168,48 @@ university_app/
 - Generate reports and analytics
 - Moderate content and users
 
-## 📱 Key Screenshots
+## 📱 Application Screenshots
 
-![Dashboard Overview](Neonomads/screenshot1.png)
-*Student Dashboard - Centralized access to all university services*
+### Dashboard & Main Interface
+![Dashboard Overview](Neonomads/1.png)
+*Main Dashboard - Centralized access to all university services*
 
-![Navigation System](Neonomads/screenshot2.png)
-*Campus Navigation - Interactive maps with AR wayfinding*
+![User Interface](Neonomads/2.png)
+*Clean and intuitive user interface design*
 
-![Communication Platform](Neonomads/screenshot3.png)
-*Real-time Chat - Secure messaging between students and faculty*
+### Academic Management System
+![Academic Features](Neonomads/3.png)
+*Academic module showcasing course management and scheduling*
+
+![Assignment Management](Neonomads/4.png)
+*Assignment tracking and submission system*
+
+### Communication Platform
+![Chat System](Neonomads/5.png)
+*Real-time messaging system between students and faculty*
+
+![Notifications](Neonomads/6.png)
+*Comprehensive notification and alert system*
+
+### Campus Navigation
+![Navigation System](Neonomads/7.png)
+*Interactive campus navigation with detailed maps*
+
+![Location Services](Neonomads/8.png)
+*Location-based services and room booking system*
+
+### Additional Features
+![Cafeteria Management](Neonomads/9.png)
+*Digital cafeteria management and food ordering system*
+
+![Security Features](Neonomads/10.png)
+*Safety reporting and emergency contact system*
+
+![Transportation Hub](Neonomads/11.png)
+*Campus transportation and bus tracking system*
+
+![Events Calendar](Neonomads/12.png)
+*Event management and club activities platform*
 
 ## 🎯 Problem Statement & Solution
 
@@ -312,7 +344,8 @@ Key configuration files:
 ## 📧 Contact & Support
 
 **Team Neonomads**
-- **Lead Developer**: MD Jobayer Arafat
+- **Lead Developer & Backend**: MD Jobayer Arafat
+- **Frontend Developer**: MD Habibullah Mahmud
 - **Project Repository**: [GitHub Repository](https://github.com/mdjobayerarafat/university_app)
 - **Demo**: Available upon request
 
